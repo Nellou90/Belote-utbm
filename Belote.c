@@ -18,6 +18,21 @@ typedef struct _CARTE_ {
 
 } CARTE;
 
+CARTE* InitialiserTableau(CARTE* Jeuxdecarte, int nb)
+{
+	for (int i = 0; i < nb; i++)
+	{
+		Jeuxdecarte[i].valeur = 0;
+		Jeuxdecarte[i].couleur = 0;
+	}
+	return Jeuxdecarte;
+}
+
+
+
+
+
+
 // La fonction Initialiser prend un tableau vide pour le remplir de carte. La fonction retourne le tableau de carte, alias le jeux de carte,  initialisée.
 void InitialiserJeux(CARTE* jeuxdecarte)
 {
@@ -89,7 +104,7 @@ CARTE** Distribuer()
 // LA fonction TranformationCarteparjoueurEnCartedunjoueur prend les jeux de cartes des joueurs regroupées dans un tableau pour retournée un jeux de carte individuelle.
 CARTE* TranformationCarteparjoueurEnCartedunjoueur(CARTE** Carteparjoueur, int numerojoueur)
 {
-	CARTE* Jeuxdunjoueur;
+	CARTE* Jeuxdunjoueur = malloc(carteparjoueur * sizeof(CARTE*));
 	Jeuxdunjoueur = InitialiserTableau(Jeuxdunjoueur, carteparjoueur);
 	for (int i = 0; i < carteparjoueur; i++)
 	{
@@ -100,7 +115,7 @@ CARTE* TranformationCarteparjoueurEnCartedunjoueur(CARTE** Carteparjoueur, int n
 
 CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie)
 {
-	printf("Vous jouez la carte qui a pour valeur %s de %s\n", TabValeur[cartechoisie.valeur], TabValeur[cartechoisie.couleur]);
+	printf("Vous jouez la carte qui a pour valeur %s de %s\n", TabValeur[cartechoisie.valeur], TabCouleur[cartechoisie.couleur]);
 	printf("Il vous reste maintenant les carte suivant\n");
 	for (int i = 0; i < carteparjoueur; i++)
 	{
@@ -132,7 +147,7 @@ CARTE ChoisirUneCarte(CARTE* cartedujoueur)
 	for (i = 0; i < carteparjoueur; i++)
 	{
 
-		printf("Voici la carte %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabValeur[cartedujoueur[i].couleur]);
+		printf("Voici la carte %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
 
 	}
 	scanf("%d", &i);
@@ -142,7 +157,7 @@ CARTE ChoisirUneCarte(CARTE* cartedujoueur)
 		scanf("%d", &i);
 	}
 
-	printf("Vous avez choisi la carte numero %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabValeur[cartedujoueur[i].couleur]);
+	printf("Vous avez choisi la carte numero %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
 	cartechoisi = cartedujoueur[i];
 	return cartechoisi;
 }
@@ -174,15 +189,6 @@ const char* TesterTypeJoueur()
 	return typedujoueur;
 }
 
-CARTE* InitialiserTableau(CARTE* Jeuxdecarte, int nb)
-{
-	for (int i = 0; i < nb; i++)
-	{
-		Jeuxdecarte[i].valeur = 0;
-		Jeuxdecarte[i].couleur = 0;
-	}
-	return Jeuxdecarte;
-}
 
 int AjouterCarteAuTourCourant(CARTE cartejouer, CARTE* cartedutourjouer, int nombrecartejouer)
 {
@@ -276,11 +282,12 @@ int main()
 {
 	CARTE** Jeuxjoueur;
 	Jeuxjoueur = Distribuer();
-	CARTE* Joueur0;
+	CARTE* Joueur0 = malloc(carteparjoueur * sizeof(CARTE*));
 	int joueurnumero0 = 0;
 	Joueur0 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurnumero0);
-	CARTE* cartedutourjouer;
+	
 	int nombrecartejouer = 0;
+	CARTE* cartedutourjouer = malloc(nombrecartejouer * sizeof(CARTE*));
 	cartedutourjouer = InitialiserTableau(cartedutourjouer, nombrecartejouer);
 	JouerUnJoueur(Joueur0, cartedutourjouer, nombrecartejouer);
 
