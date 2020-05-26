@@ -7,10 +7,10 @@ const char typejoueur2[] = "IA";
 const int nombrejoueur = 4;
 const int nombrecartepaquet = 32;
 const int carteparjoueur = 8;
-
+const int taillecartedutourjouer = 4;
 
 const char* TabValeur[] = { "7", "8", "9", "10", "valet", "dame", "roi", "As" };
-const char* TabCouleur[] = { "trefle", "carreau", "coeur", "pique" };
+const char* TabCouleur[] = { "trefle", "pique", "coeur", "carreau" };
 
 typedef struct _CARTE_ {
 	int valeur;
@@ -42,7 +42,7 @@ CARTE JouerIA(CARTE* carteIA)
 
 		}
 	}
-	printf("L'IA a choisie de jouer la carte %s de %s", TabValeur[max.valeur], TabCouleur[max.couleur]);
+	printf("L'IA a choisie de jouer la carte %s de %s\n", TabValeur[max.valeur], TabCouleur[max.couleur]);
 	for (int i = 0; i < carteparjoueur; i++)
 	{
 		if (carteIA[i].valeur == max.valeur && carteIA[i].couleur == max.couleur)
@@ -238,7 +238,7 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 	{
 		if (cartedutourjouer[i].valeur > max.valeur)
 		{
-			max = cartedutourjouer[i];
+			max.valeur = cartedutourjouer[i].valeur;
 
 		}
 	}
@@ -264,25 +264,25 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 		if (max.valeur == cartedutourjouer[0].valeur)
 		{
 			compteurjoueur[0]++;
-			printf("Le joueur 1 a pour scores : %d\n", compteurjoueur[0]);
+			printf("Le joueur humain a pour scores : %d\n", compteurjoueur[0]);
 
 		}
 		else if (max.valeur == cartedutourjouer[1].valeur)
 		{
 			compteurjoueur[1]++;
-			printf("Le joueur 2 a pour scores : %d\n", compteurjoueur[1]);
+			printf("Le joueur IA1 a pour scores : %d\n", compteurjoueur[1]);
 
 		}
 		else if (max.valeur == cartedutourjouer[2].valeur)
 		{
 			compteurjoueur[2]++;
-			printf("Le joueur 3 a pour scores : %d\n", compteurjoueur[2]);
+			printf("Le joueur IA2 a pour scores : %d\n", compteurjoueur[2]);
 
 		}
 		else if (max.valeur == cartedutourjouer[3].valeur)
 		{
 			compteurjoueur[3]++;
-			printf("Le joueur 4 a pour scores : %d\n", compteurjoueur[3]);
+			printf("Le joueur IA3 a pour scores : %d\n", compteurjoueur[3]);
 
 		}
 		return 0;
@@ -294,18 +294,20 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 
 
 // La fonction JouerUnJoueur prend les carte d'un joueur et retourne la carte jouée.
-void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer)
+int JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer)
 {
 	CARTE cartejouer = { 0,0 };
 	cartejouer = JouerHumain(Cartehumain);
 	nombrecartejouer = AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
+	return nombrecartejouer;
 }
 
-void JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int nombrecartejouer)
+int JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int nombrecartejouer)
 {
 	CARTE cartejouerIA = { 0,0 };
-	cartejouerIA = JouerHumain(CarteIA);
+	cartejouerIA = JouerIA(CarteIA);
 	nombrecartejouer = AjouterCarteAuTourCourant(cartejouerIA, cartedutourjouer, nombrecartejouer);
+	return nombrecartejouer;
 }
 
 
@@ -313,19 +315,20 @@ void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE*
 {
 	int gagnanttour = 0;
 	int nombrecartejouer = 0;
-	CARTE* cartedutourjouer = malloc(nombrecartejouer * sizeof(CARTE*));
-	cartedutourjouer = InitialiserTableau(cartedutourjouer, nombrecartejouer);
-	JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer);
-	JouerUnJoueurIA(JoueurIA1, cartedutourjouer, nombrecartejouer);
-	JouerUnJoueurIA(JoueurIA2, cartedutourjouer, nombrecartejouer);
-	JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer);
-	gagnanttour = CompterResultatDuTour(cartedutourjouer, nombrecartejouer, compteurjoueur);
+	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
+	cartedutourjouer = InitialiserTableau(cartedutourjouer, taillecartedutourjouer);
+	nombrecartejouer = JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer);
+	printf("\n");
+	nombrecartejouer = JouerUnJoueurIA(JoueurIA1, cartedutourjouer, nombrecartejouer);
+	printf("\n");
+	nombrecartejouer = JouerUnJoueurIA(JoueurIA2, cartedutourjouer, nombrecartejouer);
+	printf("\n");
+	nombrecartejouer = JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer);
+	printf("\n");
+	gagnanttour = CompterResultatDuTour(cartedutourjouer, nombrecartejouer, compteurjoueur); 
 }
 
-
-
-
-int main()
+void JouerUnePartie()
 {
 	int compteurjoueur[4] = { 0 };
 	CARTE** Jeuxjoueur;
@@ -342,7 +345,19 @@ int main()
 	JoueurIA1 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA1);
 	JoueurIA2 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA2);
 	JoueurIA3 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA3);
-	JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur);
+	for (int i = 0; i < carteparjoueur; i++)
+	{
+		JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur);
+	}
+	
+}
+
+
+
+
+int main()
+{
+	JouerUnePartie();
 
 	
 
