@@ -170,19 +170,19 @@ CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie)
 
 
 }
-CARTE ChoisirUneCarte(CARTE* cartedujoueur)
+CARTE ChoisirUneCarte(CARTE* cartedujoueur, int nombrecartejouer)
 {
 	CARTE cartechoisi = { 0,0 };
 	int i;
 	printf("Choisissez la carte que vous voulez jouer en tapant le numero de la carte:\n");
-	for (i = 0; i < carteparjoueur; i++)
+	for (i = 0; i < carteparjoueur- nombrecartejouer/ nombrejoueur; i++)
 	{
 
 		printf("Voici la carte %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
 
 	}
 	scanf("%d", &i);
-	while (i < 0 || i >= carteparjoueur)
+	while (i < 0 || i >= carteparjoueur - nombrecartejouer / nombrejoueur)
 	{
 		printf("Cette carte n'existe pas, choisissez un autre numero :\n");
 		scanf("%d", &i);
@@ -193,11 +193,11 @@ CARTE ChoisirUneCarte(CARTE* cartedujoueur)
 	return cartechoisi;
 }
 
-CARTE JouerHumain(CARTE* cartedujoueur)
+CARTE JouerHumain(CARTE* cartedujoueur, int nombrecartejouer)
 {
 	CARTE cartechoisi = { 0,0 };
 	CARTE cartejouer;
-	cartechoisi = ChoisirUneCarte(cartedujoueur);
+	cartechoisi = ChoisirUneCarte(cartedujoueur, nombrecartejouer);
 	cartejouer = JouerUneCarte(cartedujoueur, cartechoisi);
 	return cartejouer;
 }
@@ -297,9 +297,9 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 int JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer)
 {
 	CARTE cartejouer = { 0,0 };
-	cartejouer = JouerHumain(Cartehumain);
-	nombrecartejouer = AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
-	return nombrecartejouer;
+	cartejouer = JouerHumain(Cartehumain, nombrecartejouer);
+	int resultatNombrecartejouer = AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
+	return resultatNombrecartejouer;
 }
 
 int JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int nombrecartejouer)
@@ -311,21 +311,21 @@ int JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int nombrecartejoue
 }
 
 
-void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE* JoueurIA3, int* compteurjoueur)
+int JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE* JoueurIA3, int* compteurjoueur, int nombrecartejouer)
 {
 	int gagnanttour = 0;
-	int nombrecartejouer = 0;
 	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
 	cartedutourjouer = InitialiserTableau(cartedutourjouer, taillecartedutourjouer);
-	nombrecartejouer = JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer);
+	int newNombrecartejouer = JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer);
 	printf("\n");
-	nombrecartejouer = JouerUnJoueurIA(JoueurIA1, cartedutourjouer, nombrecartejouer);
+	newNombrecartejouer = JouerUnJoueurIA(JoueurIA1, cartedutourjouer, newNombrecartejouer);
 	printf("\n");
-	nombrecartejouer = JouerUnJoueurIA(JoueurIA2, cartedutourjouer, nombrecartejouer);
+	newNombrecartejouer = JouerUnJoueurIA(JoueurIA2, cartedutourjouer, newNombrecartejouer);
 	printf("\n");
-	nombrecartejouer = JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer);
+	newNombrecartejouer = JouerUnJoueurIA(JoueurIA3, cartedutourjouer, newNombrecartejouer);
 	printf("\n");
-	gagnanttour = CompterResultatDuTour(cartedutourjouer, nombrecartejouer, compteurjoueur); 
+	gagnanttour = CompterResultatDuTour(cartedutourjouer, newNombrecartejouer, compteurjoueur);
+	return newNombrecartejouer;
 }
 
 void JouerUnePartie()
@@ -345,9 +345,10 @@ void JouerUnePartie()
 	JoueurIA1 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA1);
 	JoueurIA2 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA2);
 	JoueurIA3 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA3);
+	int nombrecartejouer = 0;
 	for (int i = 0; i < carteparjoueur; i++)
 	{
-		JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur);
+		nombrecartejouer=JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur,nombrecartejouer);
 	}
 	
 }
