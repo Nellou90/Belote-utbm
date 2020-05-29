@@ -28,37 +28,34 @@ CARTE* InitialiserTableau(CARTE* Jeuxdecarte, int nb)
 	return Jeuxdecarte;
 }
 
-CARTE JouerIA(CARTE* carteIA)
+CARTE JouerIA(CARTE* carteIA, int compteurtour)
 {
-	CARTE cartechoisi = { 0,0 };
 	int i;
-	CARTE cartejouerIA;
+	CARTE cartejouerIA = { 0,0 };
 	CARTE max = { 0,0 };
-	for (i = 0; i < carteparjoueur; i++)
+	for (i = 0; i < carteparjoueur - compteurtour; i++)
 	{
 		if (carteIA[i].valeur > max.valeur)
 		{
-			max = carteIA[i];
+			max.valeur = carteIA[i].valeur;
 
 		}
 	}
 	printf("L'IA a choisie de jouer la carte %s de %s\n", TabValeur[max.valeur], TabCouleur[max.couleur]);
-	for (int i = 0; i < carteparjoueur; i++)
+	for (int i = 0; i < carteparjoueur - compteurtour; i++)
 	{
 		if (carteIA[i].valeur == max.valeur && carteIA[i].couleur == max.couleur)
 		{
-			for (int j = i; j < carteparjoueur; j++)
+			while (i < carteparjoueur - compteurtour)
 			{
-				if (j < carteparjoueur - 1)
-				{
-					carteIA[j] = carteIA[j + 1];
-				}
-
+				carteIA[i] = carteIA[i + 1];
+				i++;
 			}
+			break;
 		}
 	}
-	cartejouerIA = max;
-	return cartejouerIA;
+	
+	return max;
 }
 
 
@@ -144,45 +141,43 @@ CARTE* TranformationCarteparjoueurEnCartedunjoueur(CARTE** Carteparjoueur, int n
 	return Jeuxdunjoueur;
 }
 
-CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie)
+CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie, int compteurtour)
 {
 	printf("Vous jouez la carte qui a pour valeur %s de %s\n", TabValeur[cartechoisie.valeur], TabCouleur[cartechoisie.couleur]);
 	printf("Il vous reste maintenant les carte suivant\n");
-	for (int i = 0; i < carteparjoueur; i++)
+	for (int i = 0; i < carteparjoueur-compteurtour; i++)
 	{
 		if (cartedujoueur[i].valeur == cartechoisie.valeur && cartedujoueur[i].couleur == cartechoisie.couleur)
 		{
-			for (int j = i; j < carteparjoueur; j++)
+			while (i < carteparjoueur - compteurtour)
 			{
-				if (j < carteparjoueur - 1)
-				{
-					cartedujoueur[j] = cartedujoueur[j + 1];
-				}
-
+				cartedujoueur[i] = cartedujoueur[i + 1];
+				i++;
 			}
+			break;
 		}
 	}
 
-	for (int i = 0; i < carteparjoueur - 1; i++)
+	for (int i = 0; i < carteparjoueur - compteurtour - 1; i++)
 		printf(" %d -- %s de %s \n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
 	CARTE cartejouer = cartechoisie;
 	return cartejouer;
 
 
 }
-CARTE ChoisirUneCarte(CARTE* cartedujoueur, int nombrecartejouer)
+CARTE ChoisirUneCarte(CARTE* cartedujoueur, int compteurtour)
 {
 	CARTE cartechoisi = { 0,0 };
 	int i;
 	printf("Choisissez la carte que vous voulez jouer en tapant le numero de la carte:\n");
-	for (i = 0; i < carteparjoueur- nombrecartejouer/ nombrejoueur; i++)
+	for (i = 0; i < carteparjoueur - compteurtour; i++)
 	{
 
 		printf("Voici la carte %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
 
 	}
 	scanf("%d", &i);
-	while (i < 0 || i >= carteparjoueur - nombrecartejouer / nombrejoueur)
+	while (i < 0 || i >= carteparjoueur - compteurtour)
 	{
 		printf("Cette carte n'existe pas, choisissez un autre numero :\n");
 		scanf("%d", &i);
@@ -193,12 +188,12 @@ CARTE ChoisirUneCarte(CARTE* cartedujoueur, int nombrecartejouer)
 	return cartechoisi;
 }
 
-CARTE JouerHumain(CARTE* cartedujoueur, int nombrecartejouer)
+CARTE JouerHumain(CARTE* cartedujoueur, int compteurtour)
 {
 	CARTE cartechoisi = { 0,0 };
 	CARTE cartejouer;
-	cartechoisi = ChoisirUneCarte(cartedujoueur, nombrecartejouer);
-	cartejouer = JouerUneCarte(cartedujoueur, cartechoisi);
+	cartechoisi = ChoisirUneCarte(cartedujoueur, compteurtour);
+	cartejouer = JouerUneCarte(cartedujoueur, cartechoisi, compteurtour);
 	return cartejouer;
 }
 
@@ -221,12 +216,10 @@ const char* TesterTypeJoueur()
 }
 
 
-int AjouterCarteAuTourCourant(CARTE cartejouer, CARTE* cartedutourjouer, int nombrecartejouer)
+void AjouterCarteAuTourCourant(CARTE cartejouer, CARTE* cartedutourjouer, int nombrecartejouer)
 {
 	cartedutourjouer[nombrecartejouer].valeur = cartejouer.valeur;
 	cartedutourjouer[nombrecartejouer].couleur = cartejouer.couleur;
-	nombrecartejouer = nombrecartejouer + 1;
-	return nombrecartejouer;
 }
 
 int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* compteurjoueur)
@@ -236,9 +229,10 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 	int i;
 	for (i = 0; i < nombrecartejouer; i++)
 	{
-		if (cartedutourjouer[i].valeur > max.valeur)
+		if (cartedutourjouer[i].valeur > max.valeur && cartedutourjouer[i].couleur > max.couleur)
 		{
 			max.valeur = cartedutourjouer[i].valeur;
+			max.couleur = cartedutourjouer[i].couleur;
 
 		}
 	}
@@ -247,7 +241,7 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 	{
 		for (int j = i + 1; j < nombrecartejouer; j++)
 		{
-			if (cartedutourjouer[i].valeur == cartedutourjouer[j++].valeur && max.valeur <= cartedutourjouer[i].valeur)
+			if (cartedutourjouer[i].valeur == cartedutourjouer[j++].valeur && cartedutourjouer[i].couleur == cartedutourjouer[j++].couleur && max.valeur <= cartedutourjouer[i].valeur && max.couleur == cartedutourjouer[i].couleur)
 			{
 				gagnant = 0;
 				break;
@@ -261,25 +255,25 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 		return gagnant;
 		break;
 	case 1:
-		if (max.valeur == cartedutourjouer[0].valeur)
+		if (max.valeur == cartedutourjouer[0].valeur && max.couleur == cartedutourjouer[0].couleur)
 		{
 			compteurjoueur[0]++;
 			printf("Le joueur humain a pour scores : %d\n", compteurjoueur[0]);
 
 		}
-		else if (max.valeur == cartedutourjouer[1].valeur)
+		else if (max.valeur == cartedutourjouer[1].valeur && max.couleur == cartedutourjouer[1].couleur)
 		{
 			compteurjoueur[1]++;
 			printf("Le joueur IA1 a pour scores : %d\n", compteurjoueur[1]);
 
 		}
-		else if (max.valeur == cartedutourjouer[2].valeur)
+		else if (max.valeur == cartedutourjouer[2].valeur && max.couleur == cartedutourjouer[2].couleur)
 		{
 			compteurjoueur[2]++;
 			printf("Le joueur IA2 a pour scores : %d\n", compteurjoueur[2]);
 
 		}
-		else if (max.valeur == cartedutourjouer[3].valeur)
+		else if (max.valeur == cartedutourjouer[3].valeur && max.couleur == cartedutourjouer[3].couleur)
 		{
 			compteurjoueur[3]++;
 			printf("Le joueur IA3 a pour scores : %d\n", compteurjoueur[3]);
@@ -294,38 +288,41 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 
 
 // La fonction JouerUnJoueur prend les carte d'un joueur et retourne la carte jouée.
-int JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer)
+void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer, int compteurtour)
 {
 	CARTE cartejouer = { 0,0 };
-	cartejouer = JouerHumain(Cartehumain, nombrecartejouer);
-	int resultatNombrecartejouer = AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
-	return resultatNombrecartejouer;
+	cartejouer = JouerHumain(Cartehumain, compteurtour);
+	AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
+	
 }
 
-int JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int nombrecartejouer)
+void JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer, int compteurtour, int nombrecartejouer)
 {
 	CARTE cartejouerIA = { 0,0 };
-	cartejouerIA = JouerIA(CarteIA);
-	nombrecartejouer = AjouterCarteAuTourCourant(cartejouerIA, cartedutourjouer, nombrecartejouer);
-	return nombrecartejouer;
+	cartejouerIA = JouerIA(CarteIA, compteurtour);
+	AjouterCarteAuTourCourant(cartejouerIA, cartedutourjouer, nombrecartejouer);
 }
 
 
-int JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE* JoueurIA3, int* compteurjoueur, int nombrecartejouer)
+void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE* JoueurIA3, int* compteurjoueur, int compteurtour)
 {
 	int gagnanttour = 0;
 	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
 	cartedutourjouer = InitialiserTableau(cartedutourjouer, taillecartedutourjouer);
-	int newNombrecartejouer = JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer);
+	int nombrecartejouer = 0;
+	JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer, compteurtour);
+	nombrecartejouer++;
 	printf("\n");
-	newNombrecartejouer = JouerUnJoueurIA(JoueurIA1, cartedutourjouer, newNombrecartejouer);
+	JouerUnJoueurIA(JoueurIA1, cartedutourjouer, nombrecartejouer, compteurtour);
+	nombrecartejouer++;
 	printf("\n");
-	newNombrecartejouer = JouerUnJoueurIA(JoueurIA2, cartedutourjouer, newNombrecartejouer);
+	JouerUnJoueurIA(JoueurIA2, cartedutourjouer, nombrecartejouer, compteurtour);
+	nombrecartejouer++;
 	printf("\n");
-	newNombrecartejouer = JouerUnJoueurIA(JoueurIA3, cartedutourjouer, newNombrecartejouer);
+	JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer, compteurtour);
+	nombrecartejouer++;
 	printf("\n");
-	gagnanttour = CompterResultatDuTour(cartedutourjouer, newNombrecartejouer, compteurjoueur);
-	return newNombrecartejouer;
+	gagnanttour = CompterResultatDuTour(cartedutourjouer, nombrecartejouer, compteurjoueur);
 }
 
 void JouerUnePartie()
@@ -343,12 +340,27 @@ void JouerUnePartie()
 	int joueurIA3 = 3;
 	Joueurhumain0 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurhumain);
 	JoueurIA1 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA1);
-	JoueurIA2 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA2);
-	JoueurIA3 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA3);
-	int nombrecartejouer = 0;
 	for (int i = 0; i < carteparjoueur; i++)
 	{
-		nombrecartejouer=JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur,nombrecartejouer);
+		printf("IA1 %d -- %s de %s \n", i, TabValeur[JoueurIA1[i].valeur], TabCouleur[JoueurIA1[i].couleur]);
+	}
+	printf("\n");
+	JoueurIA2 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA2);
+	for (int i = 0; i < carteparjoueur; i++)
+	{
+		printf("IA2 %d -- %s de %s \n", i, TabValeur[JoueurIA2[i].valeur], TabCouleur[JoueurIA2[i].couleur]);
+	}
+	printf("\n");
+	JoueurIA3 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA3);
+	for (int i = 0; i < carteparjoueur; i++)
+	{
+		printf("IA3 %d -- %s de %s \n", i, TabValeur[JoueurIA3[i].valeur], TabCouleur[JoueurIA3[i].couleur]);
+	}
+	int compteurtour = 0;
+	for (int i = 0; i < carteparjoueur; i++)
+	{
+		JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur, compteurtour);
+		compteurtour++;
 	}
 	
 }
