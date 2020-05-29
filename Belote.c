@@ -35,12 +35,13 @@ CARTE JouerIA(CARTE* carteIA, int compteurtour)
 	CARTE max = { 0,0 };
 	for (i = 0; i < carteparjoueur - compteurtour; i++)
 	{
-		if (carteIA[i].valeur > max.valeur)
+		if (carteIA[0].valeur < carteIA[i].valeur)
 		{
-			max.valeur = carteIA[i].valeur;
+			carteIA[0].valeur = carteIA[i].valeur;
 
 		}
 	}
+	max = carteIA[0];
 	printf("L'IA a choisie de jouer la carte %s de %s\n", TabValeur[max.valeur], TabCouleur[max.couleur]);
 	for (int i = 0; i < carteparjoueur - compteurtour; i++)
 	{
