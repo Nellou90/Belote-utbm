@@ -338,33 +338,4 @@ int main()
 {
 	JouerUnePartie();
 
-	
-
-
-
-
-	//	int compteurjoueur[4] = { 0 };
-	//	for (int i = 0; i < 4; i++)
-	//	{
-	//		printf("%d\n", compteurjoueur[i]);
-	//	}
-	//	int cartedutourjouer[4] = { 2,2,3,4 };
-	//	for (int i = 0; i < 4; i++)
-	//	{
-	//		printf("%d\n", cartedutourjouer[i]);
-	//	}
-	//	 //int nombrecartejouer = 0;
-	//	// initialisertour(cartedutourjouer);
-	//	 //testertypejoueur();
-	//	/*int mescarte[4]={1,2,3,4};
-	//	int cartejouer;
-	//	cartejouer=jouerhumain(mescarte, nombrecarte);*/
-	//	/*nombrecartejouer=AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);*/
-	//	int nombrecarte = 4;
-	//    CompterResultatDuTour(cartedutourjouer, nombrecarte, compteurjoueur);
-	//	for (int i = 0; i < 4; i++)
-	//    {
-	//	    printf("%d\n", compteurjoueur[i]);
-	//	}
-	//
 }
