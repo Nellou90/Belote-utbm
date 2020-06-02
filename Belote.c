@@ -18,43 +18,50 @@ typedef struct _CARTE_ {
 
 } CARTE;
 
-int cartesEgales(CARTE c0, CARTE c1) {
+// This function takes two cards as input and returns a tie between the two cards.
+// input parameter : Card 1.
+// input parameter : Card 2.
+// parameter output : Card 1 equal Card 2.
+int EqualsCards(CARTE c0, CARTE c1) {
 	return ((c0.valeur == c1.valeur) && (c0.couleur == c1.couleur));
 }
 
+// This function takes a deck of cards as input and returns an initialized deck of cards.
+// input parameter : a deck of cards ( in the form of an array)
+// input parameter : the size of the array to browse it
 
-CARTE* InitialiserTableau(CARTE* Jeuxdecarte, int nb)
+void InitializedArray(CARTE* Deckofcards, int SizeofDeckofcards)
 {
-	for (int i = 0; i < nb; i++)
+	for (int i = 0; i < SizeofDeckofcards; i++)
 	{
-		Jeuxdecarte[i].valeur = -1;
-		Jeuxdecarte[i].couleur = -1;
+		Deckofcards[i].valeur = -1;
+		Deckofcards[i].couleur = -1;
 	}
-	return Jeuxdecarte;
 }
 
-// Entree : jeux de cartes restantes à jouer
-// Entree : numero de tour courant (utiliser uniquement pour l'acces à la bonne portion du tableau qui implemente le jeu de crate)
-// Sortie : Carte Jouee
-// Sortie : Jeu de carte restantes à jouer reinitialisées de telle sorte que la carte jouee soit supprimee et que le tableau soit cohérent par rapport  (compteurtour+1)
-CARTE JouerIA(CARTE* carteIA, int compteurtour)
+// This function takes the IA card game and plays the IA, it returns the card played by the IA.
+// input paramater : remaining decks of cards to be played
+// input paramater : current turn number (use only for access to the correct portion of the array that implements the deck of cards)
+// parmater output : Played Card
+// parmater output : Card deck remaining to be played reinitialized so that the played card is removed and the array is consistent in relation to (Currentturnnumber + 1)
+CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber)
 {
 	int i=0;
 	int iMax = 0;
-	int numeroCarteRestanteMax = carteparjoueur - compteurtour;
-	for (i = 1; i < numeroCarteRestanteMax; i++){
-		if (carteIA[i].valeur > carteIA[iMax].valeur){
+	int maxRemainingCardNumber = carteparjoueur - Currentturnnumber;
+	for (i = 1; i < maxRemainingCardNumber; i++){
+		if (IAcardgame[i].valeur > IAcardgame[iMax].valeur){
 			iMax = i;
 		}
 	}
-	printf("L'IA a choisie de jouer la carte %s de %s\n", TabValeur[carteIA[iMax].valeur], TabCouleur[carteIA[iMax].couleur]);
+	printf("The IA chose to play the card %s of %s\n", TabValeur[IAcardgame[iMax].valeur], TabCouleur[IAcardgame[iMax].couleur]);
 
 	//Find index of card to be removed
 	
-	for (int i = iMax; i < numeroCarteRestanteMax-1; i++){
-			carteIA[i] = carteIA[i + 1];
+	for (int i = iMax; i < maxRemainingCardNumber -1; i++){
+		IAcardgame[i] = IAcardgame[i + 1];
 	}
-	return carteIA[iMax];
+	return IAcardgame[iMax];
 }
 
 
@@ -132,7 +139,7 @@ CARTE** Distribuer()
 CARTE* TranformationCarteparjoueurEnCartedunjoueur(CARTE** Carteparjoueur, int numerojoueur)
 {
 	CARTE* Jeuxdunjoueur = malloc(carteparjoueur * sizeof(CARTE));
-	Jeuxdunjoueur = InitialiserTableau(Jeuxdunjoueur, carteparjoueur);
+	InitializedArray(Jeuxdunjoueur, carteparjoueur);
 	for (int i = 0; i < carteparjoueur; i++)
 	{
 		Jeuxdunjoueur[i] = Carteparjoueur[numerojoueur][i];
@@ -265,7 +272,7 @@ void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombre
 void JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer,  int nombrecartejouer, int compteurtour)
 {
 	CARTE cartejouerIA = { 0,0 };
-	cartejouerIA = JouerIA(CarteIA, compteurtour);
+	cartejouerIA = PlayIA(CarteIA, compteurtour);
 	AjouterCarteAuTourCourant(cartejouerIA, cartedutourjouer, nombrecartejouer);
 }
 
@@ -274,7 +281,7 @@ void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE*
 {
 	int gagnanttour = 0;
 	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
-	cartedutourjouer = InitialiserTableau(cartedutourjouer, taillecartedutourjouer);
+	InitializedArray(cartedutourjouer, taillecartedutourjouer);
 	int nombrecartejouer = 0;
 	JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
