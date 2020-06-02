@@ -29,7 +29,7 @@ int EqualsCards(CARTE c0, CARTE c1) {
 // This function takes a deck of cards as input and returns an initialized deck of cards.
 // input parameter : a deck of cards ( in the form of an array)
 // input parameter : the size of the array to browse it
-
+// output : Array initialized to -1
 void InitializedArray(CARTE* Deckofcards, int SizeofDeckofcards)
 {
 	for (int i = 0; i < SizeofDeckofcards; i++)
@@ -42,8 +42,8 @@ void InitializedArray(CARTE* Deckofcards, int SizeofDeckofcards)
 // This function takes the IA card game and plays the IA, it returns the card played by the IA.
 // input paramater : remaining decks of cards to be played
 // input paramater : current turn number (use only for access to the correct portion of the array that implements the deck of cards)
-// parmater output : Played Card
-// parmater output : Card deck remaining to be played reinitialized so that the played card is removed and the array is consistent in relation to (Currentturnnumber + 1)
+// parmater output : Played Card by IA
+// output : Card deck remaining to be played reinitialized so that the played card is removed and the array is consistent in relation to (Currentturnnumber + 1)
 CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber)
 {
 	int i=0;
@@ -55,6 +55,7 @@ CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber)
 		}
 	}
 	printf("The IA chose to play the card %s of %s\n", TabValeur[IAcardgame[iMax].valeur], TabCouleur[IAcardgame[iMax].couleur]);
+	printf("\n");
 
 	//Find index of card to be removed
 	
@@ -67,10 +68,10 @@ CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber)
 
 
 
-// La fonction Initialiser prend un tableau vide pour le remplir de carte. La fonction retourne le tableau de carte, alias le jeux de carte,  initialisée.
-// en entree: jeuxdecarte est 
-// en sortie: jeux de carte modifié
-void InitialiserJeux(CARTE* jeuxdecarte)
+//This function takes as input parameter an array initialized at -1 to fill it with map. The function returns the array of cards, that is the deck of cards
+// input paramater : Empty card game  
+// output: card game  which is sorted by color and ascending order
+void FillAnArrayWithCards(CARTE* Emptycardgame)
 {
 	int val, coul, i;;
 	i = 0;
@@ -78,38 +79,47 @@ void InitialiserJeux(CARTE* jeuxdecarte)
 	{
 		for (val = 0; val < carteparjoueur; val++)
 		{
-			jeuxdecarte[i].valeur = val;
-			jeuxdecarte[i].couleur = coul;
-			printf(" %d -- %s de %s \n", i, TabValeur[jeuxdecarte[i].valeur], TabCouleur[jeuxdecarte[i].couleur]);
+			Emptycardgame[i].valeur = val;
+			Emptycardgame[i].couleur = coul;
+			printf(" %d -- %s de %s \n", i, TabValeur[Emptycardgame[i].valeur], TabCouleur[Emptycardgame[i].couleur]);
 			i++;
 
 		}
+		printf("\n");
 	}
 }
 
-// La fonction melanger prend un jeu de carte ordonné de manière croissante (pCarte) et renvoie un paquet qui est une permutation aleatoire du paquet en entré  
-void Melanger(CARTE* pCarte)
+
+// The ShuffleADeckOfCards function takes an incrementally ordered deck of cardsand returns a deck that is a random permutation of the incoming deck.  
+// parameter input : a sorted card game
+// return : a shuffled card game with random permutation
+void ShuffleADeckOfCards(CARTE* Sortedcardgame)
 {
 	for (int iCarte = (nombrecartepaquet - 1); iCarte >= 0; --iCarte)
 	{
 		int jCarte = rand() % (iCarte + 1);
-		CARTE temp = pCarte[iCarte];
-		pCarte[iCarte] = pCarte[jCarte];
-		pCarte[jCarte] = temp;
+		CARTE temp = Sortedcardgame[iCarte];
+		Sortedcardgame[iCarte] = Sortedcardgame[jCarte];
+		Sortedcardgame[jCarte] = temp;
 
 	}
 }
 
-CARTE** allouerJeuDeCarteParjoueur() {
-	CARTE** jeuJoueurs = malloc(nombrejoueur * sizeof(CARTE*));
+// This function does'nt takes any parameter input but it allocates a piece of memory to an array. it allocates this memory for an array of arrays (two dimensional array)
+// output :  Array of arrays allocated
+CARTE** AllocateMemoryForAnArrayofArrays() {
+	CARTE** Twodimensionalarray = malloc(nombrejoueur * sizeof(CARTE*));
 	for (int i = 0; i < nombrejoueur; i++) {
-		jeuJoueurs[i] = (CARTE*)malloc(carteparjoueur * sizeof(CARTE));
+		Twodimensionalarray[i] = (CARTE*)malloc(carteparjoueur * sizeof(CARTE));
 	}
-	return jeuJoueurs;
+	return Twodimensionalarray;
 }
 
-// La fonction DistribuerCarteParJoueur prend un jeux de carte mélangé (jeux) et un tableau de carte par joueur vide (Cartejoueur) et renvoie le tableau de carte par joueur remplie avec les élément du jeux de carte mélangée (jeux).
-CARTE** DistribuerCarteParJoueur(CARTE* jeux, CARTE** Cartejoueur)
+// The function DistributeADeckOfCardsPerPlayer takes a shuffled deck of cards (games) and an empty per-player card array (PlayerCard) and returns the per-player card array filled with the elements of the shuffled deck of cards (games).
+// input : a deck of cards which is shuffled
+// input : a two dimensional array which is the per-player card array 
+// output : an array of arrays fill of shuffled cards -> i.e. cards per player
+CARTE** DistributeADeckOfCardsPerPlayer(CARTE* Shuffleddeckofcards, CARTE** Cardsperplayer)
 {
 	int i, j, m;
 	m = 0;
@@ -117,21 +127,22 @@ CARTE** DistribuerCarteParJoueur(CARTE* jeux, CARTE** Cartejoueur)
 	{
 		for (j = 0; j < carteparjoueur; j++)
 		{
-			Cartejoueur[i][j] = jeux[m];
-			printf("joueur %d carte numero %d = %s de %s \n", i, j, TabValeur[(Cartejoueur[i][j]).valeur], TabCouleur[(Cartejoueur[i][j]).couleur]);
+			Cardsperplayer[i][j] = Shuffleddeckofcards[m];
+			printf("Player %d card number %d = %s de %s \n", i, j, TabValeur[(Cardsperplayer[i][j]).valeur], TabCouleur[(Cardsperplayer[i][j]).couleur]);
 			m++;
 		}
+		printf("\n");
 	}
-	return Cartejoueur;
+	return Cardsperplayer;
 }
 
 CARTE** Distribuer()
 {
 	CARTE* Jeuxdecarte = (CARTE*)malloc(nombrecartepaquet * sizeof(CARTE));
-	InitialiserJeux(Jeuxdecarte);
-	Melanger(Jeuxdecarte);
-	CARTE** JeuxJoueur = allouerJeuDeCarteParjoueur();
-	DistribuerCarteParJoueur(Jeuxdecarte, JeuxJoueur);
+	FillAnArrayWithCards(Jeuxdecarte);
+	ShuffleADeckOfCards(Jeuxdecarte);
+	CARTE** JeuxJoueur = AllocateMemoryForAnArrayofArrays();
+	DistributeADeckOfCardsPerPlayer(Jeuxdecarte, JeuxJoueur);
 	return JeuxJoueur;
 }
 
