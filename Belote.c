@@ -2,27 +2,30 @@
 #include <stdlib.h>
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
-const  char typejoueur1[] = "humain";
-const char typejoueur2[] = "IA";
-const int nombrejoueur = 4;
-const int nombrecartepaquet = 32;
-const int carteparjoueur = 8;
-const int taillecartedutourjouer = 4;
+//const  char typejoueur1[] = "humain";
+//const char typejoueur2[] = "IA";
+const int numberofplayer = 4;
+const int numberofcardsinthedeck = 32;
+const int numberofcardperplayer = 8;
+const int sizeofreferencingarray = 4;
 
-const char* TabValeur[] = { "7", "8", "9", "10", "valet", "dame", "roi", "As" };
-const char* TabCouleur[] = { "trefle", "pique", "coeur", "carreau" };
+// This is the constant value of cards
+const char* TabValue[] = { "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
+// This is the constant color of cards
+const char* TabColor[] = { "Clubs", "Spades", "Hearts", "Diamonds" };
 
-typedef struct _CARTE_ {
+// The struct CARD integrates in it-self the value and the color of a card
+typedef struct _CARD_ {
 	int valeur;
 	int couleur;
 
-} CARTE;
+} CARD;
 
-// This function takes two cards as input and returns a tie between the two cards.
+// This function takes two cards as input and returns an equality between the two cards.
 // input parameter : Card 1.
 // input parameter : Card 2.
 // parameter output : Card 1 equal Card 2.
-int EqualsCards(CARTE c0, CARTE c1) {
+int EqualsCards(CARD c0, CARD c1) {
 	return ((c0.valeur == c1.valeur) && (c0.couleur == c1.couleur));
 }
 
@@ -30,7 +33,7 @@ int EqualsCards(CARTE c0, CARTE c1) {
 // input parameter : a deck of cards ( in the form of an array)
 // input parameter : the size of the array to browse it
 // output : Array initialized to -1
-void InitializedArray(CARTE* Deckofcards, int Sizeofdeckofcards){
+void InitializedArray(CARD* Deckofcards, int Sizeofdeckofcards){
 	for (int i = 0; i < Sizeofdeckofcards; i++){
 		Deckofcards[i].valeur = -1;
 		Deckofcards[i].couleur = -1;
@@ -42,16 +45,16 @@ void InitializedArray(CARTE* Deckofcards, int Sizeofdeckofcards){
 // input paramater : current turn number (use only for access to the correct portion of the array that implements the deck of cards)
 // parmater output : Played Card by IA
 // output : Card deck remaining to be played reinitialized so that the played card is removed and the array is consistent in relation to (Currentturnnumber + 1)
-CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber){
+CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
 	int i=0;
 	int iMax = 0;
-	int maxRemainingCardNumber = carteparjoueur - Currentturnnumber;
+	int maxRemainingCardNumber = numberofcardperplayer - Currentturnnumber;
 	for (i = 1; i < maxRemainingCardNumber; i++){
 		if (IAcardgame[i].valeur > IAcardgame[iMax].valeur){
 			iMax = i;
 		}
 	}
-	printf("The IA chose to play the card %s of %s\n", TabValeur[IAcardgame[iMax].valeur], TabCouleur[IAcardgame[iMax].couleur]);
+	printf("The IA chose to play the card %s of %s\n", TabValue[IAcardgame[iMax].valeur], TabColor[IAcardgame[iMax].couleur]);
 	printf("\n");
 
 	//Find index of card to be removed
@@ -68,14 +71,14 @@ CARTE PlayIA(CARTE* IAcardgame, int Currentturnnumber){
 //This function takes as input parameter an array initialized at -1 to fill it with map. The function returns the array of cards, that is the deck of cards
 // input paramater : Empty card game  
 // output: card game  which is sorted by color and ascending order
-void FillAnArrayWithCards(CARTE* Emptycardgame){
+void FillAnArrayWithCards(CARD* Emptycardgame){
 	int val, coul, i;;
 	i = 0;
-	for (coul = 0; coul < nombrejoueur; coul++){
-		for (val = 0; val < carteparjoueur; val++){
+	for (coul = 0; coul < numberofplayer; coul++){
+		for (val = 0; val < numberofcardperplayer; val++){
 			Emptycardgame[i].valeur = val;
 			Emptycardgame[i].couleur = coul;
-			printf(" %d -- %s de %s \n", i, TabValeur[Emptycardgame[i].valeur], TabCouleur[Emptycardgame[i].couleur]);
+			printf(" %d -- %s of %s \n", i, TabValue[Emptycardgame[i].valeur], TabColor[Emptycardgame[i].couleur]);
 			i++;
 		}
 		printf("\n");
@@ -86,10 +89,10 @@ void FillAnArrayWithCards(CARTE* Emptycardgame){
 // The ShuffleADeckOfCards function takes an incrementally ordered deck of cardsand returns a deck that is a random permutation of the incoming deck.  
 // parameter input : a sorted card game
 // return : a shuffled card game with random permutation
-void ShuffleADeckOfCards(CARTE* Sortedcardgame){
-	for (int iCarte = (nombrecartepaquet - 1); iCarte >= 0; --iCarte){
+void ShuffleADeckOfCards(CARD* Sortedcardgame){
+	for (int iCarte = (numberofcardsinthedeck - 1); iCarte >= 0; --iCarte){
 		int jCarte = rand() % (iCarte + 1);
-		CARTE temp = Sortedcardgame[iCarte];
+		CARD temp = Sortedcardgame[iCarte];
 		Sortedcardgame[iCarte] = Sortedcardgame[jCarte];
 		Sortedcardgame[jCarte] = temp;
 	}
@@ -97,10 +100,10 @@ void ShuffleADeckOfCards(CARTE* Sortedcardgame){
 
 // This function does'nt takes any parameter input but it allocates a piece of memory to an array. it allocates this memory for an array of arrays (two dimensional array)
 // output :  Array of arrays allocated
-CARTE** AllocateMemoryForAnArrayofArrays() {
-	CARTE** Twodimensionalarray = malloc(nombrejoueur * sizeof(CARTE*));
-	for (int i = 0; i < nombrejoueur; i++) {
-		Twodimensionalarray[i] = (CARTE*)malloc(carteparjoueur * sizeof(CARTE));
+CARD** AllocateMemoryForAnArrayofArrays() {
+	CARD** Twodimensionalarray = malloc(numberofplayer * sizeof(CARD*));
+	for (int i = 0; i < numberofplayer; i++) {
+		Twodimensionalarray[i] = (CARD*)malloc(numberofcardperplayer * sizeof(CARD));
 	}
 	return Twodimensionalarray;
 }
@@ -109,13 +112,13 @@ CARTE** AllocateMemoryForAnArrayofArrays() {
 // input : a deck of cards which is shuffled
 // input : a two dimensional array which is the per-player card array 
 // output : an array of arrays fill of shuffled cards -> i.e. cards per player
-CARTE** DistributeADeckOfCardsPerPlayer(CARTE* Shuffleddeckofcards, CARTE** Cardsperplayer){
+CARD** DistributeADeckOfCardsPerPlayer(CARD* Shuffleddeckofcards, CARD** Cardsperplayer){
 	int i, j, m;
 	m = 0;
-	for (i = 0; i < nombrejoueur; i++){
-		for (j = 0; j < carteparjoueur; j++){
+	for (i = 0; i < numberofplayer; i++){
+		for (j = 0; j < numberofcardperplayer; j++){
 			Cardsperplayer[i][j] = Shuffleddeckofcards[m];
-			printf("Player %d card number %d = %s de %s \n", i, j, TabValeur[(Cardsperplayer[i][j]).valeur], TabCouleur[(Cardsperplayer[i][j]).couleur]);
+			printf("Player %d card number %d = %s of %s \n", i, j, TabValue[(Cardsperplayer[i][j]).valeur], TabColor[(Cardsperplayer[i][j]).couleur]);
 			m++;
 		}
 		printf("\n");
@@ -125,11 +128,11 @@ CARTE** DistributeADeckOfCardsPerPlayer(CARTE* Shuffleddeckofcards, CARTE** Card
 
 // This function doesn't have a in put parameter but it allocates memory for a deck of cards , fills and shuffles this deck of cards. Secondly it allocates memory for a two dimensional array which is the cards per-player and distribute the cards of the deck between the players
 // output : a two dimensional array which correspond to the cards per-player
-CARTE** DistributingAndShufflingADeckOfCards(){
-	CARTE* deckofcards = (CARTE*)malloc(nombrecartepaquet * sizeof(CARTE));
+CARD** DistributingAndShufflingADeckOfCards(){
+	CARD* deckofcards = (CARD*)malloc(numberofcardsinthedeck * sizeof(CARD));
 	FillAnArrayWithCards(deckofcards);
 	ShuffleADeckOfCards(deckofcards);
-	CARTE** cardsperplayer = AllocateMemoryForAnArrayofArrays();
+	CARD** cardsperplayer = AllocateMemoryForAnArrayofArrays();
 	DistributeADeckOfCardsPerPlayer(deckofcards, cardsperplayer);
 	return cardsperplayer;
 }
@@ -139,10 +142,10 @@ CARTE** DistributingAndShufflingADeckOfCards(){
 // input : a two dimensional array fills by the cards per-player
 // input : the player number which corresponds to the index
 // output : the cards of one player on an array.
-CARTE* ChangeFromATwoDimensionalArrayToASingleArray(CARTE** Cardsperplayer, int Playernumber){
-	CARTE* cardsofoneplayer = malloc(carteparjoueur * sizeof(CARTE));
-	InitializedArray(cardsofoneplayer, carteparjoueur);
-	for (int i = 0; i < carteparjoueur; i++){
+CARD* ChangeFromATwoDimensionalArrayToASingleArray(CARD** Cardsperplayer, int Playernumber){
+	CARD* cardsofoneplayer = malloc(numberofcardperplayer * sizeof(CARD));
+	InitializedArray(cardsofoneplayer, numberofcardperplayer);
+	for (int i = 0; i < numberofcardperplayer; i++){
 		cardsofoneplayer[i] = Cardsperplayer[Playernumber][i];
 	}
 	return cardsofoneplayer;
@@ -154,23 +157,23 @@ CARTE* ChangeFromATwoDimensionalArrayToASingleArray(CARTE** Cardsperplayer, int 
 // input : The card which were choose during the turn
 // input : the number of the current turn ( this number will be used to resize the array )
 // output : the played card by the player
-CARTE ResizingAnArrayAfterPlayingACard(CARTE* Deckofcardsofoneplayer, CARTE Chosencardduringthecurrentturn, int Numberofthecurrentturn){
-	printf("You play the card that has a value of %s de %s\n", TabValeur[Chosencardduringthecurrentturn.valeur], TabCouleur[Chosencardduringthecurrentturn.couleur]);
+CARD ResizingAnArrayAfterPlayingACard(CARD* Deckofcardsofoneplayer, CARD Chosencardduringthecurrentturn, int Numberofthecurrentturn){
+	printf("You play the card that has a value of %s de %s\n", TabValue[Chosencardduringthecurrentturn.valeur], TabColor[Chosencardduringthecurrentturn.couleur]);
 	printf("\n");
 	printf("You now have the following cards left :\n");
 	printf("\n");
-	for (int i = 0; i < carteparjoueur-Numberofthecurrentturn; i++){
+	for (int i = 0; i < numberofcardperplayer-Numberofthecurrentturn; i++){
 		if (Deckofcardsofoneplayer[i].valeur == Chosencardduringthecurrentturn.valeur && Deckofcardsofoneplayer[i].couleur == Chosencardduringthecurrentturn.couleur){
-			while (i < carteparjoueur - Numberofthecurrentturn){
+			while (i < numberofcardperplayer - Numberofthecurrentturn){
 				Deckofcardsofoneplayer[i] = Deckofcardsofoneplayer[i + 1];
 				i++;
 			}
 			break;
 		}
 	}
-	for (int i = 0; i < carteparjoueur - Numberofthecurrentturn - 1; i++)
-		printf(" %d -- %s de %s \n", i, TabValeur[Deckofcardsofoneplayer[i].valeur], TabCouleur[Deckofcardsofoneplayer[i].couleur]);
-	CARTE playedcard = Chosencardduringthecurrentturn;
+	for (int i = 0; i < numberofcardperplayer - Numberofthecurrentturn - 1; i++)
+		printf(" %d -- %s of %s \n", i, TabValue[Deckofcardsofoneplayer[i].valeur], TabColor[Deckofcardsofoneplayer[i].couleur]);
+	CARD playedcard = Chosencardduringthecurrentturn;
 	return playedcard;
 }
 
@@ -178,21 +181,21 @@ CARTE ResizingAnArrayAfterPlayingACard(CARTE* Deckofcardsofoneplayer, CARTE Chos
 // input : a player's deck of cards
 // input : the number of the current turn ( this number will be used to accesses to the good portion of the array ).
 // output : the chosen card by the player
-CARTE ChooseACardToPlay(CARTE* Deckofcardofoneplayer, int Numberofthecurrentturn){
-	CARTE chosencard = { 0,0 };
+CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn){
+	CARD chosencard = { 0,0 };
 	int i = 0;
 	printf("Choose the card you want to play by typing the card number:\n");
 	printf("\n");
-	for (i = 0; i < carteparjoueur - Numberofthecurrentturn; i++){
-		printf(" %d -- %s de %s\n", i, TabValeur[Deckofcardofoneplayer[i].valeur], TabCouleur[Deckofcardofoneplayer[i].couleur]);
+	for (i = 0; i < numberofcardperplayer - Numberofthecurrentturn; i++){
+		printf(" %d -- %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].valeur], TabColor[Deckofcardofoneplayer[i].couleur]);
 	}
 	scanf("%d", &i);
-	while (i < 0 || i >= carteparjoueur - Numberofthecurrentturn){
+	while (i < 0 || i >= numberofcardperplayer - Numberofthecurrentturn){
 		printf("This card does not exist, choose another number :\n");
 		scanf("%d", &i);
 	}
 	printf("\n");
-	printf("You have chosen the card number %d which has the following value %s de %s\n", i, TabValeur[Deckofcardofoneplayer[i].valeur], TabCouleur[Deckofcardofoneplayer[i].couleur]);
+	printf("You have chosen the card number %d which has the following value %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].valeur], TabColor[Deckofcardofoneplayer[i].couleur]);
 	chosencard = Deckofcardofoneplayer[i];
 	return chosencard;
 }
@@ -201,9 +204,9 @@ CARTE ChooseACardToPlay(CARTE* Deckofcardofoneplayer, int Numberofthecurrentturn
 // input : a deck of cards of one player
 // input : the number of the current turn
 // output : the played card by to player.
-CARTE ChooseAndPlayACard(CARTE* Deckofcardsofoneplayer, int Numberofthecurrentturn){
-	CARTE chosencard = { 0,0 };
-	CARTE playedcard;
+CARD ChooseAndPlayACard(CARD* Deckofcardsofoneplayer, int Numberofthecurrentturn){
+	CARD chosencard = { 0,0 };
+	CARD playedcard;
 	chosencard = ChooseACardToPlay(Deckofcardsofoneplayer, Numberofthecurrentturn);
 	playedcard = ResizingAnArrayAfterPlayingACard(Deckofcardsofoneplayer, chosencard, Numberofthecurrentturn);
 	return playedcard;
@@ -230,7 +233,7 @@ CARTE ChooseAndPlayACard(CARTE* Deckofcardsofoneplayer, int Numberofthecurrenttu
 // input : A referencing array of played cards of the current turn
 // input : the played card
 // input : the number of played card during the current turn 
-void AddPlayedCardToReferencingArray(CARTE Playedcard, CARTE* Referencingarrayofplayedcardofturn, int Numberofplayedcardofturn){
+void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofplayedcardofturn, int Numberofplayedcardofturn){
 	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].valeur = Playedcard.valeur;
 	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].couleur = Playedcard.couleur;
 }
@@ -242,9 +245,9 @@ void AddPlayedCardToReferencingArray(CARTE Playedcard, CARTE* Referencingarrayof
 // input : number of played cards during the turn
 // input : a player score counter
 // output : a boolean which corresponds to the existence of a winner or not
-int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter){
+int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter){
 	int i;
-	CARTE max = Referencingarrayofplayedcards[0];
+	CARD max = Referencingarrayofplayedcards[0];
 	int winningplayernumber = 0;
 	int winnerspoints = Referencingarrayofplayedcards[0].valeur;
 	for (i = 1; i < Numberofplayedcardsduringtheturn; i++){
@@ -275,8 +278,8 @@ int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int 
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAHumanPlayer(CARTE* Deckofcardsofhuman, CARTE* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Numberofcurrentturn){
-	CARTE playedcard = { 0,0 };
+void PlayAHumanPlayer(CARD* Deckofcardsofhuman, CARD* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Numberofcurrentturn){
+	CARD playedcard = { 0,0 };
 	playedcard = ChooseAndPlayACard(Deckofcardsofhuman, Numberofcurrentturn);
 	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 	
@@ -288,8 +291,8 @@ void PlayAHumanPlayer(CARTE* Deckofcardsofhuman, CARTE* Referencingarrayofthepla
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAnIAPlayer(CARTE* DeckofcardsofoneIA, CARTE* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Numberofcurrentturn){
-	CARTE playedcard = { 0,0 };
+void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Numberofcurrentturn){
+	CARD playedcard = { 0,0 };
 	playedcard = PlayIA(DeckofcardsofoneIA, Numberofcurrentturn);
 	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 }
@@ -299,10 +302,10 @@ void PlayAnIAPlayer(CARTE* DeckofcardsofoneIA, CARTE* Referencingarrayoftheplaye
 // input : deck of cards of the human, the first IA, the second IA, and the third IA.
 // input : players score counter
 // input : the number of the current turn
-void PlayOneTurn(CARTE* Humandeck, CARTE* IA1deck, CARTE* IA2deck, CARTE* IA3deck, int* Playerscorecounter, int Numberofthecurrentturn){
+void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, int* Playerscorecounter, int Numberofthecurrentturn){
 	int winneroftheturn = 0;
-	CARTE* referencingarrayoftheplayedcards = malloc(taillecartedutourjouer * sizeof(CARTE));
-	InitializedArray(referencingarrayoftheplayedcards, taillecartedutourjouer);
+	CARD* referencingarrayoftheplayedcards = malloc(sizeofreferencingarray * sizeof(CARD));
+	InitializedArray(referencingarrayoftheplayedcards, sizeofreferencingarray);
 	int Numberofplayedcards = 0;
 	PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
 	Numberofplayedcards++;
@@ -324,12 +327,12 @@ void PlayOneTurn(CARTE* Humandeck, CARTE* IA1deck, CARTE* IA2deck, CARTE* IA3dec
 // The function displays the winner of this party.
 void PlayOnePart(){
 	int playescorecounter[4] = { 0 };
-	CARTE** deckofcardsperplayer;
+	CARD** deckofcardsperplayer;
 	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
-	CARTE* humanplayer = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* IA1player = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* IA2player = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* IA3player = malloc(carteparjoueur * sizeof(CARTE*));
+	CARD* humanplayer = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA1player = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA2player = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA3player = malloc(numberofcardperplayer * sizeof(CARD*));
 	int humanplayernumber = 0;
 	int IA1playernumber = 1;
 	int IA2playernumber = 2;
@@ -339,7 +342,7 @@ void PlayOnePart(){
 	IA2player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
 	IA3player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
 	int numberofthecurrentturn = 0;
-	for (int i = 0; i < carteparjoueur; i++){
+	for (int i = 0; i < numberofcardperplayer; i++){
 		PlayOneTurn(humanplayer, IA1player, IA2player, IA3player, playescorecounter, numberofthecurrentturn);
 		numberofthecurrentturn++;
 	}
