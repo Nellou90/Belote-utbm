@@ -209,54 +209,64 @@ CARTE ChooseAndPlayACard(CARTE* Deckofcardsofoneplayer, int Numberofthecurrenttu
 	return playedcard;
 }
 
-const char* TesterTypeJoueur(){
-	const char* typedujoueur;
-	int reponse;
-	printf("Es-tu un humain ? (1 pour oui 0 pour non)\n");
-	scanf("%d", &reponse);
-	if (reponse == 1){
-		typedujoueur = typejoueur1;
-	}
-	else{
-		typedujoueur = typejoueur2;
-	}
-	printf("Vous etes donc du type %s\n", typedujoueur);
-	return typedujoueur;
+// This function allows to determine if the player is human or not but I don't use it anymore
+//const char* TesterTypeJoueur(){
+//	const char* typedujoueur;
+//	int reponse;
+//	printf("Es-tu un humain ? (1 pour oui 0 pour non)\n");
+//	scanf("%d", &reponse);
+//	if (reponse == 1){
+//		typedujoueur = typejoueur1;
+//	}
+//	else{
+//		typedujoueur = typejoueur2;
+//	}
+//	printf("Vous etes donc du type %s\n", typedujoueur);
+//	return typedujoueur;
+//}
+
+// This fonction takes a played card by a player, an array that references the played cards during the turn in order of the players, the number of played card during this turn.
+// This function allows  to add to the referencing array the played card of a player during the current turn. This array will then be used in the program to determine the winner.
+// input : A referencing array of played cards of the current turn
+// input : the played card
+// input : the number of played card during the current turn 
+void AddPlayedCardToReferencingArray(CARTE Playedcard, CARTE* Referencingarrayofplayedcardofturn, int Numberofplayedcardofturn){
+	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].valeur = Playedcard.valeur;
+	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].couleur = Playedcard.couleur;
 }
 
 
-void AjouterCarteAuTourCourant(CARTE cartejouer, CARTE* cartedutourjouer, int nombrecartejouer){
-	cartedutourjouer[nombrecartejouer].valeur = cartejouer.valeur;
-	cartedutourjouer[nombrecartejouer].couleur = cartejouer.couleur;
-}
-
-
-// 
-int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* compteurjoueur)
+// This function has as goal to determined a winner between the player.
+// It takes in entry a referencing array of played cards during the turn, the number of played card to browse the array of referencing, and a players score counter (in the form of an array).
+// input : a referencing array of played cards
+// input : number of played cards during the turn
+// input : a player score counter
+// output : a boolean which corresponds to the existence of a winner or not
+int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter)
 {
 	int i;
-	CARTE max = cartedutourjouer[0];
-	int numeroJoueurGagnant = 0;
-	int pointsDuGagnant = cartedutourjouer[0].valeur;
-	for (i = 1; i < nombrecartejouer; i++){
-		pointsDuGagnant += cartedutourjouer[i].valeur;
-		if (cartedutourjouer[i].valeur > max.valeur){
-			max=cartedutourjouer[i];
-			numeroJoueurGagnant = i;
+	CARTE max = Referencingarrayofplayedcards[0];
+	int winningplayernumber = 0;
+	int winnerspoints = Referencingarrayofplayedcards[0].valeur;
+	for (i = 1; i < Numberofplayedcardsduringtheturn; i++){
+		winnerspoints += Referencingarrayofplayedcards[i].valeur;
+		if (Referencingarrayofplayedcards[i].valeur > max.valeur){
+			max=Referencingarrayofplayedcards[i];
+			winningplayernumber = i;
 		}
-		else if (cartedutourjouer[i].valeur == max.valeur) {
-			numeroJoueurGagnant = -1;
+		else if (Referencingarrayofplayedcards[i].valeur == max.valeur) {
+			winningplayernumber = -1;
 		}
 	}
 
-	if (numeroJoueurGagnant != -1) {
-		compteurjoueur[numeroJoueurGagnant] = compteurjoueur[numeroJoueurGagnant] + pointsDuGagnant;
-		printf("Le joueur %d, gangne. Son score est augmente de %d, et atteint %d.\n", numeroJoueurGagnant, pointsDuGagnant, compteurjoueur[numeroJoueurGagnant]);
+	if (winningplayernumber != -1) {
+		Playerscorecounter[winningplayernumber] = Playerscorecounter[winningplayernumber] + winnerspoints;
+		printf("Player %d, wins. His score is increased by %d, and reaches %d.\n", winningplayernumber, winnerspoints, Playerscorecounter[winningplayernumber]);
 	}
 	else {
-		printf("Aumoins 2 joueurs sont ex aequo, La somme des points perdus est de %d.\n", pointsDuGagnant);
+		printf("At least 2 players are tied, The sum of the lost points is %d.\n", winnerspoints);
 	}
-	return (numeroJoueurGagnant != -1);
+	return (winningplayernumber != -1);
 }
 
 
@@ -264,14 +274,14 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer, int compteurtour){
 	CARTE cartejouer = { 0,0 };
 	cartejouer = ChooseAndPlayACard(Cartehumain, compteurtour);
-	AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
+	AddPlayedCardToReferencingArray(cartejouer, cartedutourjouer, nombrecartejouer);
 	
 }
 
 void JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer,  int nombrecartejouer, int compteurtour){
 	CARTE cartejouerIA = { 0,0 };
 	cartejouerIA = PlayIA(CarteIA, compteurtour);
-	AjouterCarteAuTourCourant(cartejouerIA, cartedutourjouer, nombrecartejouer);
+	AddPlayedCardToReferencingArray(cartejouerIA, cartedutourjouer, nombrecartejouer);
 }
 
 
@@ -292,7 +302,7 @@ void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE*
 	JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
 	printf("\n");
-	gagnanttour = CompterResultatDuTour(cartedutourjouer, nombrecartejouer, compteurjoueur);
+	gagnanttour = DeterminingAWinnerAmongThePlayers(cartedutourjouer, nombrecartejouer, compteurjoueur);
 }
 
 void JouerUnePartie(){
