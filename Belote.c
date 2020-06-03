@@ -148,50 +148,65 @@ CARTE* ChangeFromATwoDimensionalArrayToASingleArray(CARTE** Cardsperplayer, int 
 	return cardsofoneplayer;
 }
 
-
-CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie, int compteurtour){
-	printf("Vous jouez la carte qui a pour valeur %s de %s\n", TabValeur[cartechoisie.valeur], TabCouleur[cartechoisie.couleur]);
-	printf("Il vous reste maintenant les carte suivant\n");
-	for (int i = 0; i < carteparjoueur-compteurtour; i++){
-		if (cartedujoueur[i].valeur == cartechoisie.valeur && cartedujoueur[i].couleur == cartechoisie.couleur){
-			while (i < carteparjoueur - compteurtour){
-				cartedujoueur[i] = cartedujoueur[i + 1];
+// This function takes a player's deck of cards, the card he has chosen to play during the current turn, and the number of the current turn. 
+// It returns the played card and the array that represents the player's deck of cards. This array has been resized taking into account the played card.
+// input : The deck of cards of one player
+// input : The card which were choose during the turn
+// input : the number of the current turn ( this number will be used to resize the array )
+// output : the played card by the player
+CARTE ResizingAnArrayAfterPlayingACard(CARTE* Deckofcardsofoneplayer, CARTE Chosencardduringthecurrentturn, int Numberofthecurrentturn){
+	printf("You play the card that has a value of %s de %s\n", TabValeur[Chosencardduringthecurrentturn.valeur], TabCouleur[Chosencardduringthecurrentturn.couleur]);
+	printf("\n");
+	printf("You now have the following cards left :\n");
+	printf("\n");
+	for (int i = 0; i < carteparjoueur-Numberofthecurrentturn; i++){
+		if (Deckofcardsofoneplayer[i].valeur == Chosencardduringthecurrentturn.valeur && Deckofcardsofoneplayer[i].couleur == Chosencardduringthecurrentturn.couleur){
+			while (i < carteparjoueur - Numberofthecurrentturn){
+				Deckofcardsofoneplayer[i] = Deckofcardsofoneplayer[i + 1];
 				i++;
 			}
 			break;
 		}
 	}
-	for (int i = 0; i < carteparjoueur - compteurtour - 1; i++)
-		printf(" %d -- %s de %s \n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
-	CARTE cartejouer = cartechoisie;
-	return cartejouer;
+	for (int i = 0; i < carteparjoueur - Numberofthecurrentturn - 1; i++)
+		printf(" %d -- %s de %s \n", i, TabValeur[Deckofcardsofoneplayer[i].valeur], TabCouleur[Deckofcardsofoneplayer[i].couleur]);
+	CARTE playedcard = Chosencardduringthecurrentturn;
+	return playedcard;
 }
 
-
-CARTE ChoisirUneCarte(CARTE* cartedujoueur, int compteurtour){
-	CARTE cartechoisi = { 0,0 };
+// This function takes a player's deck of cards, and the number of the current turn. It asks to the player which card he want to play during the current turn and returns the chosen card.
+// input : a player's deck of cards
+// input : the number of the current turn ( this number will be used to accesses to the good portion of the array ).
+// output : the chosen card by the player
+CARTE ChooseACardToPlay(CARTE* Deckofcardofoneplayer, int Numberofthecurrentturn){
+	CARTE chosencard = { 0,0 };
 	int i = 0;
-	printf("Choisissez la carte que vous voulez jouer en tapant le numero de la carte:\n");
-	for (i = 0; i < carteparjoueur - compteurtour; i++){
-		printf("Voici la carte %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
+	printf("Choose the card you want to play by typing the card number:\n");
+	printf("\n");
+	for (i = 0; i < carteparjoueur - Numberofthecurrentturn; i++){
+		printf(" %d -- %s de %s\n", i, TabValeur[Deckofcardofoneplayer[i].valeur], TabCouleur[Deckofcardofoneplayer[i].couleur]);
 	}
 	scanf("%d", &i);
-	while (i < 0 || i >= carteparjoueur - compteurtour){
-		printf("Cette carte n'existe pas, choisissez un autre numero :\n");
+	while (i < 0 || i >= carteparjoueur - Numberofthecurrentturn){
+		printf("This card does not exist, choose another number :\n");
 		scanf("%d", &i);
 	}
-
-	printf("Vous avez choisi la carte numero %d qui a pour valeur %s de %s\n", i, TabValeur[cartedujoueur[i].valeur], TabCouleur[cartedujoueur[i].couleur]);
-	cartechoisi = cartedujoueur[i];
-	return cartechoisi;
+	printf("\n");
+	printf("You have chosen the card number %d which has the following value %s de %s\n", i, TabValeur[Deckofcardofoneplayer[i].valeur], TabCouleur[Deckofcardofoneplayer[i].couleur]);
+	chosencard = Deckofcardofoneplayer[i];
+	return chosencard;
 }
 
-CARTE JouerHumain(CARTE* cartedujoueur, int compteurtour){
-	CARTE cartechoisi = { 0,0 };
-	CARTE cartejouer;
-	cartechoisi = ChoisirUneCarte(cartedujoueur, compteurtour);
-	cartejouer = JouerUneCarte(cartedujoueur, cartechoisi, compteurtour);
-	return cartejouer;
+// This function uses the previous functions ChooseACardToPlay and ResizingAnArrayAfterPlayingACard to choose and play a card.
+// input : a deck of cards of one player
+// input : the number of the current turn
+// output : the played card by to player.
+CARTE ChooseAndPlayACard(CARTE* Deckofcardsofoneplayer, int Numberofthecurrentturn){
+	CARTE chosencard = { 0,0 };
+	CARTE playedcard;
+	chosencard = ChooseACardToPlay(Deckofcardsofoneplayer, Numberofthecurrentturn);
+	playedcard = ResizingAnArrayAfterPlayingACard(Deckofcardsofoneplayer, chosencard, Numberofthecurrentturn);
+	return playedcard;
 }
 
 const char* TesterTypeJoueur(){
@@ -248,7 +263,7 @@ int CompterResultatDuTour(CARTE* cartedutourjouer, int nombrecartejouer, int* co
 // La fonction JouerUnJoueur prend les carte d'un joueur et retourne la carte jouée.
 void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer, int compteurtour){
 	CARTE cartejouer = { 0,0 };
-	cartejouer = JouerHumain(Cartehumain, compteurtour);
+	cartejouer = ChooseAndPlayACard(Cartehumain, compteurtour);
 	AjouterCarteAuTourCourant(cartejouer, cartedutourjouer, nombrecartejouer);
 	
 }
