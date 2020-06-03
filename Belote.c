@@ -242,8 +242,7 @@ void AddPlayedCardToReferencingArray(CARTE Playedcard, CARTE* Referencingarrayof
 // input : number of played cards during the turn
 // input : a player score counter
 // output : a boolean which corresponds to the existence of a winner or not
-int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter)
-{
+int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter){
 	int i;
 	CARTE max = Referencingarrayofplayedcards[0];
 	int winningplayernumber = 0;
@@ -270,18 +269,29 @@ int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int 
 }
 
 
-// La fonction JouerUnJoueur prend les carte d'un joueur et retourne la carte jouée.
-void JouerUnJoueurHumain(CARTE* Cartehumain, CARTE* cartedutourjouer, int nombrecartejouer, int compteurtour){
-	CARTE cartejouer = { 0,0 };
-	cartejouer = ChooseAndPlayACard(Cartehumain, compteurtour);
-	AddPlayedCardToReferencingArray(cartejouer, cartedutourjouer, nombrecartejouer);
+// This function takes the deck of cards of the human, the referencing array of the played cards during the turn, the number of played cards during the turn, and the player score counter.
+// This function has as goal to do play the human player.
+// input : deck of cards of human
+// input : referencing array of the played cards
+// input : number of played cards
+// input : player score counter
+void PlayAHumanPlayer(CARTE* Deckofcardsofhuman, CARTE* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Playersscorecounter){
+	CARTE playedcard = { 0,0 };
+	playedcard = ChooseAndPlayACard(Deckofcardsofhuman, Playersscorecounter);
+	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 	
 }
 
-void JouerUnJoueurIA(CARTE* CarteIA, CARTE* cartedutourjouer,  int nombrecartejouer, int compteurtour){
-	CARTE cartejouerIA = { 0,0 };
-	cartejouerIA = PlayIA(CarteIA, compteurtour);
-	AddPlayedCardToReferencingArray(cartejouerIA, cartedutourjouer, nombrecartejouer);
+// This function takes the deck of cards of one IA, the referencing array of the played cards during the turn, the number of played cards during the turn, and the player score counter.
+// This function has as goal to do play an IA player.
+// input : deck of cards of one IA
+// input : referencing array of the played cards
+// input : number of played cards
+// input : player score counter
+void PlayAnIAPlayer(CARTE* DeckofcardsofoneIA, CARTE* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Playersscorecounter){
+	CARTE playedcard = { 0,0 };
+	playedcard = PlayIA(DeckofcardsofoneIA, Playersscorecounter);
+	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 }
 
 
@@ -290,16 +300,16 @@ void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE*
 	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
 	InitializedArray(cartedutourjouer, taillecartedutourjouer);
 	int nombrecartejouer = 0;
-	JouerUnJoueurHumain(Joueurhumain, cartedutourjouer, nombrecartejouer, compteurtour);
+	PlayAHumanPlayer(Joueurhumain, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
 	printf("\n");
-	JouerUnJoueurIA(JoueurIA1, cartedutourjouer, nombrecartejouer, compteurtour);
+	PlayAnIAPlayer(JoueurIA1, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
 	printf("\n");
-	JouerUnJoueurIA(JoueurIA2, cartedutourjouer, nombrecartejouer, compteurtour);
+	PlayAnIAPlayer(JoueurIA2, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
 	printf("\n");
-	JouerUnJoueurIA(JoueurIA3, cartedutourjouer, nombrecartejouer, compteurtour);
+	PlayAnIAPlayer(JoueurIA3, cartedutourjouer, nombrecartejouer, compteurtour);
 	nombrecartejouer++;
 	printf("\n");
 	gagnanttour = DeterminingAWinnerAmongThePlayers(cartedutourjouer, nombrecartejouer, compteurjoueur);
