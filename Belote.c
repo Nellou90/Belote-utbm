@@ -123,24 +123,31 @@ CARTE** DistributeADeckOfCardsPerPlayer(CARTE* Shuffleddeckofcards, CARTE** Card
 	return Cardsperplayer;
 }
 
-CARTE** Distribuer(){
-	CARTE* Jeuxdecarte = (CARTE*)malloc(nombrecartepaquet * sizeof(CARTE));
-	FillAnArrayWithCards(Jeuxdecarte);
-	ShuffleADeckOfCards(Jeuxdecarte);
-	CARTE** JeuxJoueur = AllocateMemoryForAnArrayofArrays();
-	DistributeADeckOfCardsPerPlayer(Jeuxdecarte, JeuxJoueur);
-	return JeuxJoueur;
+// This function doesn't have a in put parameter but it allocates memory for a deck of cards , fills and shuffles this deck of cards. Secondly it allocates memory for a two dimensional array which is the cards per-player and distribute the cards of the deck between the players
+// output : a two dimensional array which correspond to the cards per-player
+CARTE** DistributingAndShufflingADeckOfCards(){
+	CARTE* deckofcards = (CARTE*)malloc(nombrecartepaquet * sizeof(CARTE));
+	FillAnArrayWithCards(deckofcards);
+	ShuffleADeckOfCards(deckofcards);
+	CARTE** cardsperplayer = AllocateMemoryForAnArrayofArrays();
+	DistributeADeckOfCardsPerPlayer(deckofcards, cardsperplayer);
+	return cardsperplayer;
 }
 
-// LA fonction TranformationCarteparjoueurEnCartedunjoueur prend les jeux de cartes des joueurs regroupées dans un tableau pour retournée un jeux de carte individuelle.
-CARTE* TranformationCarteparjoueurEnCartedunjoueur(CARTE** Carteparjoueur, int numerojoueur){
-	CARTE* Jeuxdunjoueur = malloc(carteparjoueur * sizeof(CARTE));
-	InitializedArray(Jeuxdunjoueur, carteparjoueur);
+// This function takes in entry a two dimensional array and tranforms it on a one dimensional array : in order to do so you need the index (which is actually the player's number) of the first dimension of the array which will correspond to the player's cards in the second dimension of the array.
+//This function allocates memory to an array and returns the array filled by the cards of one player of the two dimensional array.
+// input : a two dimensional array fills by the cards per-player
+// input : the player number which corresponds to the index
+// output : the cards of one player on an array.
+CARTE* ChangeFromATwoDimensionalArrayToASingleArray(CARTE** Cardsperplayer, int Playernumber){
+	CARTE* cardsofoneplayer = malloc(carteparjoueur * sizeof(CARTE));
+	InitializedArray(cardsofoneplayer, carteparjoueur);
 	for (int i = 0; i < carteparjoueur; i++){
-		Jeuxdunjoueur[i] = Carteparjoueur[numerojoueur][i];
+		cardsofoneplayer[i] = Cardsperplayer[Playernumber][i];
 	}
-	return Jeuxdunjoueur;
+	return cardsofoneplayer;
 }
+
 
 CARTE JouerUneCarte(CARTE* cartedujoueur, CARTE cartechoisie, int compteurtour){
 	printf("Vous jouez la carte qui a pour valeur %s de %s\n", TabValeur[cartechoisie.valeur], TabCouleur[cartechoisie.couleur]);
@@ -276,7 +283,7 @@ void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE*
 void JouerUnePartie(){
 	int compteurjoueur[4] = { 0 };
 	CARTE** Jeuxjoueur;
-	Jeuxjoueur = Distribuer();
+	Jeuxjoueur = DistributingAndShufflingADeckOfCards();
 	CARTE* Joueurhumain0 = malloc(carteparjoueur * sizeof(CARTE*));
 	CARTE* JoueurIA1 = malloc(carteparjoueur * sizeof(CARTE*));
 	CARTE* JoueurIA2 = malloc(carteparjoueur * sizeof(CARTE*));
@@ -285,18 +292,18 @@ void JouerUnePartie(){
 	int joueurIA1 = 1;
 	int joueurIA2 = 2;
 	int joueurIA3 = 3;
-	Joueurhumain0 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurhumain);
-	JoueurIA1 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA1);
+	Joueurhumain0 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurhumain);
+	JoueurIA1 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA1);
 	for (int i = 0; i < carteparjoueur; i++){
 		printf("IA1 %d -- %s de %s \n", i, TabValeur[JoueurIA1[i].valeur], TabCouleur[JoueurIA1[i].couleur]);
 	}
 	printf("\n");
-	JoueurIA2 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA2);
+	JoueurIA2 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA2);
 	for (int i = 0; i < carteparjoueur; i++){
 		printf("IA2 %d -- %s de %s \n", i, TabValeur[JoueurIA2[i].valeur], TabCouleur[JoueurIA2[i].couleur]);
 	}
 	printf("\n");
-	JoueurIA3 = TranformationCarteparjoueurEnCartedunjoueur(Jeuxjoueur, joueurIA3);
+	JoueurIA3 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA3);
 	for (int i = 0; i < carteparjoueur; i++){
 		printf("IA3 %d -- %s de %s \n", i, TabValeur[JoueurIA3[i].valeur], TabCouleur[JoueurIA3[i].couleur]);
 	}
