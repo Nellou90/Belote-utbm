@@ -264,9 +264,11 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int N
 	if (winningplayernumber != -1) {
 		Playerscorecounter[winningplayernumber] = Playerscorecounter[winningplayernumber] + winnerspoints;
 		printf("Player %d, wins. His score is increased by %d, and reaches %d.\n", winningplayernumber, winnerspoints, Playerscorecounter[winningplayernumber]);
+		printf("\n");
 	}
 	else {
 		printf("At least 2 players are tied, The sum of the lost points is %d.\n", winnerspoints);
+		printf("\n");
 	}
 	return (winningplayernumber != -1);
 }
@@ -326,7 +328,7 @@ void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 // There is no input parameters but the function dynamically allocates a  piece of memory to deck of cards of the human and IAs
 // The function displays the winner of this party.
 void PlayOnePart(){
-	int playescorecounter[4] = { 0 };
+	int playerscorecounter[4] = { 0 };
 	CARD** deckofcardsperplayer;
 	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
 	CARD* humanplayer = malloc(numberofcardperplayer * sizeof(CARD*));
@@ -343,10 +345,17 @@ void PlayOnePart(){
 	IA3player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
 	int numberofthecurrentturn = 0;
 	for (int i = 0; i < numberofcardperplayer; i++){
-		PlayOneTurn(humanplayer, IA1player, IA2player, IA3player, playescorecounter, numberofthecurrentturn);
+		PlayOneTurn(humanplayer, IA1player, IA2player, IA3player, playerscorecounter, numberofthecurrentturn);
 		numberofthecurrentturn++;
 	}
-	
+	int iWinner = 0;
+	for (int i = 1; i < numberofplayer; i++) {
+		if (playerscorecounter[i] > playerscorecounter[iWinner] ) {
+			iWinner = i;
+		}
+
+	}
+	printf("The winner of this party is the player %d who has the result %d ", iWinner, playerscorecounter[iWinner]);
 }
 
 
