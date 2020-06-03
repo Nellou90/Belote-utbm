@@ -269,83 +269,79 @@ int DeterminingAWinnerAmongThePlayers(CARTE* Referencingarrayofplayedcards, int 
 }
 
 
-// This function takes the deck of cards of the human, the referencing array of the played cards during the turn, the number of played cards during the turn, and the player score counter.
+// This function takes the deck of cards of the human, the referencing array of the played cards during the turn, the number of played cards during the turn, and the number of the current turn.
 // This function has as goal to do play the human player.
 // input : deck of cards of human
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAHumanPlayer(CARTE* Deckofcardsofhuman, CARTE* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Playersscorecounter){
+void PlayAHumanPlayer(CARTE* Deckofcardsofhuman, CARTE* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Numberofcurrentturn){
 	CARTE playedcard = { 0,0 };
-	playedcard = ChooseAndPlayACard(Deckofcardsofhuman, Playersscorecounter);
+	playedcard = ChooseAndPlayACard(Deckofcardsofhuman, Numberofcurrentturn);
 	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 	
 }
 
-// This function takes the deck of cards of one IA, the referencing array of the played cards during the turn, the number of played cards during the turn, and the player score counter.
+// This function takes the deck of cards of one IA, the referencing array of the played cards during the turn, the number of played cards during the turn, and the number of the current turn.
 // This function has as goal to do play an IA player.
 // input : deck of cards of one IA
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAnIAPlayer(CARTE* DeckofcardsofoneIA, CARTE* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Playersscorecounter){
+void PlayAnIAPlayer(CARTE* DeckofcardsofoneIA, CARTE* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Numberofcurrentturn){
 	CARTE playedcard = { 0,0 };
-	playedcard = PlayIA(DeckofcardsofoneIA, Playersscorecounter);
+	playedcard = PlayIA(DeckofcardsofoneIA, Numberofcurrentturn);
 	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
 }
 
-
-void JouerUnTour(CARTE* Joueurhumain, CARTE* JoueurIA1, CARTE* JoueurIA2, CARTE* JoueurIA3, int* compteurjoueur, int compteurtour){
-	int gagnanttour = 0;
-	CARTE* cartedutourjouer = malloc(taillecartedutourjouer * sizeof(CARTE));
-	InitializedArray(cartedutourjouer, taillecartedutourjouer);
-	int nombrecartejouer = 0;
-	PlayAHumanPlayer(Joueurhumain, cartedutourjouer, nombrecartejouer, compteurtour);
-	nombrecartejouer++;
+// This function has as goal to play a turn. It means that the role of this function is to make the human and the three AIs play in a successive way.
+// This function allocates memory for the referencing array of the played cards.
+// input : deck of cards of the human, the first IA, the second IA, and the third IA.
+// input : players score counter
+// input : the number of the current turn
+void PlayOneTurn(CARTE* Humandeck, CARTE* IA1deck, CARTE* IA2deck, CARTE* IA3deck, int* Playerscorecounter, int Numberofthecurrentturn){
+	int winneroftheturn = 0;
+	CARTE* referencingarrayoftheplayedcards = malloc(taillecartedutourjouer * sizeof(CARTE));
+	InitializedArray(referencingarrayoftheplayedcards, taillecartedutourjouer);
+	int Numberofplayedcards = 0;
+	PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+	Numberofplayedcards++;
 	printf("\n");
-	PlayAnIAPlayer(JoueurIA1, cartedutourjouer, nombrecartejouer, compteurtour);
-	nombrecartejouer++;
+	PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+	Numberofplayedcards++;
 	printf("\n");
-	PlayAnIAPlayer(JoueurIA2, cartedutourjouer, nombrecartejouer, compteurtour);
-	nombrecartejouer++;
+	PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+	Numberofplayedcards++;
 	printf("\n");
-	PlayAnIAPlayer(JoueurIA3, cartedutourjouer, nombrecartejouer, compteurtour);
-	nombrecartejouer++;
+	PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+	Numberofplayedcards++;
 	printf("\n");
-	gagnanttour = DeterminingAWinnerAmongThePlayers(cartedutourjouer, nombrecartejouer, compteurjoueur);
+	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Numberofplayedcards, Playerscorecounter);
 }
 
-void JouerUnePartie(){
-	int compteurjoueur[4] = { 0 };
-	CARTE** Jeuxjoueur;
-	Jeuxjoueur = DistributingAndShufflingADeckOfCards();
-	CARTE* Joueurhumain0 = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* JoueurIA1 = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* JoueurIA2 = malloc(carteparjoueur * sizeof(CARTE*));
-	CARTE* JoueurIA3 = malloc(carteparjoueur * sizeof(CARTE*));
-	int joueurhumain = 0;
-	int joueurIA1 = 1;
-	int joueurIA2 = 2;
-	int joueurIA3 = 3;
-	Joueurhumain0 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurhumain);
-	JoueurIA1 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA1);
+// The purpose of this function is to play a party, i.e. to play several turns (as many as there are cards in the player's hands).
+// There is no input parameters but the function dynamically allocates a  piece of memory to deck of cards of the human and IAs
+// The function displays the winner of this party.
+void PlayOnePart(){
+	int playescorecounter[4] = { 0 };
+	CARTE** deckofcardsperplayer;
+	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
+	CARTE* humanplayer = malloc(carteparjoueur * sizeof(CARTE*));
+	CARTE* IA1player = malloc(carteparjoueur * sizeof(CARTE*));
+	CARTE* IA2player = malloc(carteparjoueur * sizeof(CARTE*));
+	CARTE* IA3player = malloc(carteparjoueur * sizeof(CARTE*));
+	int humanplayernumber = 0;
+	int IA1playernumber = 1;
+	int IA2playernumber = 2;
+	int IA3playernumber = 3;
+	humanplayer = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, humanplayernumber);
+	IA1player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA1playernumber);
+	IA2player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
+	IA3player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
+	int numberofthecurrentturn = 0;
 	for (int i = 0; i < carteparjoueur; i++){
-		printf("IA1 %d -- %s de %s \n", i, TabValeur[JoueurIA1[i].valeur], TabCouleur[JoueurIA1[i].couleur]);
-	}
-	printf("\n");
-	JoueurIA2 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA2);
-	for (int i = 0; i < carteparjoueur; i++){
-		printf("IA2 %d -- %s de %s \n", i, TabValeur[JoueurIA2[i].valeur], TabCouleur[JoueurIA2[i].couleur]);
-	}
-	printf("\n");
-	JoueurIA3 = ChangeFromATwoDimensionalArrayToASingleArray(Jeuxjoueur, joueurIA3);
-	for (int i = 0; i < carteparjoueur; i++){
-		printf("IA3 %d -- %s de %s \n", i, TabValeur[JoueurIA3[i].valeur], TabCouleur[JoueurIA3[i].couleur]);
-	}
-	int compteurtour = 0;
-	for (int i = 0; i < carteparjoueur; i++){
-		JouerUnTour(Joueurhumain0, JoueurIA1, JoueurIA2, JoueurIA3, compteurjoueur, compteurtour);
-		compteurtour++;
+		PlayOneTurn(humanplayer, IA1player, IA2player, IA3player, playescorecounter, numberofthecurrentturn);
+		numberofthecurrentturn++;
 	}
 	
 }
@@ -355,6 +351,6 @@ void JouerUnePartie(){
 
 int main()
 {
-	JouerUnePartie();
+	PlayOnePart();
 
 }
