@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #if defined(_WIN32) || defined(__MSDOS__)
 #include<windows.h>
 #define SPADE   "\xE2\x99\xA0"
@@ -22,24 +23,126 @@ const int numberofcardsinthedeck = 32;
 const int numberofcardperplayer = 8;
 const int sizeofreferencingarray = 4;
 
+
 // This is the constant value of cards
 const char* TabValue[] = { "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
 // This is the constant color of cards
 const char* TabColor[] = { CLUB, SPADE, HEART, DIAMOND };
 
-// The struct CARD integrates in it-self the value and the color of a card
+// The struct CARD integrates in it-self the value and the color of a card and if the card is an atout or not
 typedef struct _CARD_ {
-	int valeur;
-	int couleur;
-
+	int index;
+	int color;
+	int atout;
 } CARD;
+
+
+
+// This fonction has as goal to ask to human player how many point he projects to do during the part of the games.
+// The function has in entry the deck of cards of the human and return the contract of the human.
+// input : deck of cards of the human 
+// input : Asset
+// output : Human contract
+int ContractOfAHuman(CARD* Deckofcardshuman, int Atout) {
+	int humancontract = 0;
+	printf("Reminder of the asset : %d", Atout);
+	printf("\n");
+	printf("Here are your cards : ");
+	for (int i = 0; i < numberofcardperplayer; i++) {
+		printf("%s of %s , ", TabValue[Deckofcardshuman[i].index], TabColor[Deckofcardshuman[i].color]);
+	}
+	printf("\n");
+	printf("Please choose your contract between 80 points and 160 points : \n");
+	scanf("%d", &humancontract);
+	return humancontract;
+}
+
+// This fonction has as goal to ask to IA player how many point it projects to do during the part of the games.
+// The function has in entry the deck of cards of the IA, the Asset, the number of the IA and return the contract of the IA.
+// input : deck of cards of the IA 
+// input : Asset
+// input : the number of the IA
+// output : IA contract
+int ContractOfAnIA(CARD* DeckofcardsIA, int Atout, int IAnumber) {
+	int IAcontract = 0;
+	int hardcardscounter = 0;
+	for (int i = 0; i < numberofcardperplayer; i++) {
+		if (DeckofcardsIA[i].index == 2 && DeckofcardsIA[i].atout == 1) {
+			hardcardscounter++;
+		}
+		else if (DeckofcardsIA[i].index == 4 && DeckofcardsIA[i].atout == 1) {
+			hardcardscounter++;
+		}
+		else if (DeckofcardsIA[i].index == 7 && DeckofcardsIA[i].atout == 1) {
+			hardcardscounter++;
+		}
+		else if (DeckofcardsIA[i].index == 3 && DeckofcardsIA[i].atout == 1) {
+			hardcardscounter++;
+		}
+	}
+	if (hardcardscounter <= 3) {
+		IAcontract = 80;
+	}
+	else if (hardcardscounter > 3) {
+		IAcontract = 120;
+	}
+	printf("IA number %d announces a contract of %d\n", IAnumber, IAcontract);
+	printf("\n");
+	return IAcontract;
+}
+
+
+
+
+// This fonction determines the strenght of cards concidering if the card is an atout and the index of the card.
+// It takes in entry one card and return the strenght of this card.
+// input : Card
+// output : Strenght of the card
+int GetValueOfACard(CARD Card) {
+	if (Card.atout == 0) {
+		return Card.index;
+	}
+	else if (Card.atout == 1) {
+		if (Card.index == 2) {
+			return 19;
+		}
+		else if (Card.index == 4) {
+			return 20;
+		}
+		else if (Card.index == 7) {
+			return 18;
+		}
+		else if (Card.index == 3) {
+			return 17;
+		}
+		else {
+			return (Card.index + 10);
+		}
+	}
+	return -1;
+}
+
+
+
+// This function has as goal to choose a random atout.
+// It returns the color of the atout for the part.
+int ChooseARandomAtout() {
+	srand(time(NULL));
+	int atoutfortheparty = rand() % 4;
+	printf("The atout that has been choose is %s\n", TabColor[atoutfortheparty]);
+	printf("\n");
+	return atoutfortheparty;
+}
+
+
+
 
 // This function takes two cards as input and returns an equality between the two cards.
 // input parameter : Card 1.
 // input parameter : Card 2.
 // parameter output : Card 1 equal Card 2.
 int EqualsCards(CARD c0, CARD c1) {
-	return ((c0.valeur == c1.valeur) && (c0.couleur == c1.couleur));
+	return ((c0.index == c1.index) && (c0.color == c1.color));
 }
 
 // This function takes a deck of cards as input and returns an initialized deck of cards.
@@ -48,8 +151,9 @@ int EqualsCards(CARD c0, CARD c1) {
 // output : Array initialized to -1
 void InitializedArray(CARD* Deckofcards, int Sizeofdeckofcards){
 	for (int i = 0; i < Sizeofdeckofcards; i++){
-		Deckofcards[i].valeur = -1;
-		Deckofcards[i].couleur = -1;
+		Deckofcards[i].index = -1;
+		Deckofcards[i].color = -1;
+		Deckofcards[i].atout = -1;
 	}
 }
 
@@ -63,11 +167,11 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
 	int iMax = 0;
 	int maxRemainingCardNumber = numberofcardperplayer - Currentturnnumber;
 	for (i = 1; i < maxRemainingCardNumber; i++){
-		if (IAcardgame[i].valeur > IAcardgame[iMax].valeur){
+		if (GetValueOfACard(IAcardgame[i]) > GetValueOfACard(IAcardgame[iMax])){
 			iMax = i;
 		}
 	}
-	printf("The IA chose to play the card %s of %s\n", TabValue[IAcardgame[iMax].valeur], TabColor[IAcardgame[iMax].couleur]);
+	printf("The IA chose to play the card %s of %s\n", TabValue[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
 	printf("\n");
 
 	//Find index of card to be removed
@@ -84,14 +188,20 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
 //This function takes as input parameter an array initialized at -1 to fill it with map. The function returns the array of cards, that is the deck of cards
 // input paramater : Empty card game  
 // output: card game  which is sorted by color and ascending order
-void FillAnArrayWithCards(CARD* Emptycardgame){
+void FillAnArrayWithCards(CARD* Emptycardgame, int Atout){
 	int val, coul, i;;
 	i = 0;
 	for (coul = 0; coul < numberofplayer; coul++){
 		for (val = 0; val < numberofcardperplayer; val++){
-			Emptycardgame[i].valeur = val;
-			Emptycardgame[i].couleur = coul;
-			printf(" %d -- %s of %s \n", i, TabValue[Emptycardgame[i].valeur], TabColor[Emptycardgame[i].couleur]);
+			if (coul == Atout) {
+				Emptycardgame[i].atout = 1;
+			}
+			else {
+				Emptycardgame[i].atout = 0;
+			}
+			Emptycardgame[i].index = val;
+			Emptycardgame[i].color = coul;
+			printf(" %d -- %s of %s \n", i, TabValue[Emptycardgame[i].index], TabColor[Emptycardgame[i].color]);
 			i++;
 		}
 		printf("\n");
@@ -131,7 +241,7 @@ CARD** DistributeADeckOfCardsPerPlayer(CARD* Shuffleddeckofcards, CARD** Cardspe
 	for (i = 0; i < numberofplayer; i++){
 		for (j = 0; j < numberofcardperplayer; j++){
 			Cardsperplayer[i][j] = Shuffleddeckofcards[m];
-			printf("Player %d card number %d = %s of %s \n", i, j, TabValue[(Cardsperplayer[i][j]).valeur], TabColor[(Cardsperplayer[i][j]).couleur]);
+			printf("Player %d card number %d = %s of %s \n", i, j, TabValue[(Cardsperplayer[i][j]).index], TabColor[(Cardsperplayer[i][j]).color]);
 			m++;
 		}
 		printf("\n");
@@ -141,9 +251,10 @@ CARD** DistributeADeckOfCardsPerPlayer(CARD* Shuffleddeckofcards, CARD** Cardspe
 
 // This function doesn't have a in put parameter but it allocates memory for a deck of cards , fills and shuffles this deck of cards. Secondly it allocates memory for a two dimensional array which is the cards per-player and distribute the cards of the deck between the players
 // output : a two dimensional array which correspond to the cards per-player
-CARD** DistributingAndShufflingADeckOfCards(){
+CARD** DistributingAndShufflingADeckOfCards(int Atout){
 	CARD* deckofcards = (CARD*)malloc(numberofcardsinthedeck * sizeof(CARD));
-	FillAnArrayWithCards(deckofcards);
+	InitializedArray(deckofcards, numberofcardsinthedeck);
+	FillAnArrayWithCards(deckofcards, Atout);
 	ShuffleADeckOfCards(deckofcards);
 	CARD** cardsperplayer = AllocateMemoryForAnArrayofArrays();
 	DistributeADeckOfCardsPerPlayer(deckofcards, cardsperplayer);
@@ -171,12 +282,12 @@ CARD* ChangeFromATwoDimensionalArrayToASingleArray(CARD** Cardsperplayer, int Pl
 // input : the number of the current turn ( this number will be used to resize the array )
 // output : the played card by the player
 CARD ResizingAnArrayAfterPlayingACard(CARD* Deckofcardsofoneplayer, CARD Chosencardduringthecurrentturn, int Numberofthecurrentturn){
-	printf("You play the card that has a value of %s de %s\n", TabValue[Chosencardduringthecurrentturn.valeur], TabColor[Chosencardduringthecurrentturn.couleur]);
+	printf("You play the card that has a value of %s de %s\n", TabValue[Chosencardduringthecurrentturn.index], TabColor[Chosencardduringthecurrentturn.color]);
 	printf("\n");
 	printf("You now have the following cards left :\n");
 	printf("\n");
 	for (int i = 0; i < numberofcardperplayer-Numberofthecurrentturn; i++){
-		if (Deckofcardsofoneplayer[i].valeur == Chosencardduringthecurrentturn.valeur && Deckofcardsofoneplayer[i].couleur == Chosencardduringthecurrentturn.couleur){
+		if (Deckofcardsofoneplayer[i].index == Chosencardduringthecurrentturn.index && Deckofcardsofoneplayer[i].color == Chosencardduringthecurrentturn.color){
 			while (i < numberofcardperplayer - Numberofthecurrentturn){
 				Deckofcardsofoneplayer[i] = Deckofcardsofoneplayer[i + 1];
 				i++;
@@ -185,7 +296,7 @@ CARD ResizingAnArrayAfterPlayingACard(CARD* Deckofcardsofoneplayer, CARD Chosenc
 		}
 	}
 	for (int i = 0; i < numberofcardperplayer - Numberofthecurrentturn - 1; i++)
-		printf(" %d -- %s of %s \n", i, TabValue[Deckofcardsofoneplayer[i].valeur], TabColor[Deckofcardsofoneplayer[i].couleur]);
+		printf(" %d -- %s of %s \n", i, TabValue[Deckofcardsofoneplayer[i].index], TabColor[Deckofcardsofoneplayer[i].color]);
 	CARD playedcard = Chosencardduringthecurrentturn;
 	return playedcard;
 }
@@ -200,7 +311,7 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn){
 	printf("Choose the card you want to play by typing the card number:\n");
 	printf("\n");
 	for (i = 0; i < numberofcardperplayer - Numberofthecurrentturn; i++){
-		printf(" %d -- %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].valeur], TabColor[Deckofcardofoneplayer[i].couleur]);
+		printf(" %d -- %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
 	}
 	scanf("%d", &i);
 	while (i < 0 || i >= numberofcardperplayer - Numberofthecurrentturn){
@@ -208,7 +319,7 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn){
 		scanf("%d", &i);
 	}
 	printf("\n");
-	printf("You have chosen the card number %d which has the following value %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].valeur], TabColor[Deckofcardofoneplayer[i].couleur]);
+	printf("You have chosen the card number %d which has the following value %s of %s\n", i, TabValue[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
 	chosencard = Deckofcardofoneplayer[i];
 	return chosencard;
 }
@@ -247,8 +358,10 @@ CARD ChooseAndPlayACard(CARD* Deckofcardsofoneplayer, int Numberofthecurrentturn
 // input : the played card
 // input : the number of played card during the current turn 
 void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofplayedcardofturn, int Numberofplayedcardofturn){
-	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].valeur = Playedcard.valeur;
-	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].couleur = Playedcard.couleur;
+	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].index = Playedcard.index;
+	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].color = Playedcard.color;
+	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].atout = Playedcard.atout;
+
 }
 
 
@@ -262,14 +375,14 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int N
 	int i;
 	CARD max = Referencingarrayofplayedcards[0];
 	int winningplayernumber = 0;
-	int winnerspoints = Referencingarrayofplayedcards[0].valeur;
+	int winnerspoints = Referencingarrayofplayedcards[0].index;
 	for (i = 1; i < Numberofplayedcardsduringtheturn; i++){
-		winnerspoints += Referencingarrayofplayedcards[i].valeur;
-		if (Referencingarrayofplayedcards[i].valeur > max.valeur){
+		winnerspoints += Referencingarrayofplayedcards[i].index;
+		if (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)){
 			max=Referencingarrayofplayedcards[i];
 			winningplayernumber = i;
 		}
-		else if (Referencingarrayofplayedcards[i].valeur == max.valeur) {
+		else if (GetValueOfACard(Referencingarrayofplayedcards[i]) == GetValueOfACard(max)) {
 			winningplayernumber = -1;
 		}
 	}
@@ -341,24 +454,30 @@ void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 // There is no input parameters but the function dynamically allocates a  piece of memory to deck of cards of the human and IAs
 // The function displays the winner of this party.
 void PlayOnePart(){
+	int atoutofthispart;
+	atoutofthispart = ChooseARandomAtout();
 	int playerscorecounter[4] = { 0 };
 	CARD** deckofcardsperplayer;
-	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
-	CARD* humanplayer = malloc(numberofcardperplayer * sizeof(CARD*));
-	CARD* IA1player = malloc(numberofcardperplayer * sizeof(CARD*));
-	CARD* IA2player = malloc(numberofcardperplayer * sizeof(CARD*));
-	CARD* IA3player = malloc(numberofcardperplayer * sizeof(CARD*));
+	deckofcardsperplayer = DistributingAndShufflingADeckOfCards(atoutofthispart);
+	CARD* humancards = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA1cards = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA2cards = malloc(numberofcardperplayer * sizeof(CARD*));
+	CARD* IA3cards = malloc(numberofcardperplayer * sizeof(CARD*));
 	int humanplayernumber = 0;
 	int IA1playernumber = 1;
 	int IA2playernumber = 2;
 	int IA3playernumber = 3;
-	humanplayer = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, humanplayernumber);
-	IA1player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA1playernumber);
-	IA2player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
-	IA3player = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
+	humancards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, humanplayernumber);
+	IA1cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA1playernumber);
+	IA2cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
+	IA3cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
+	ContractOfAHuman(humancards, atoutofthispart);
+	ContractOfAnIA(IA1cards, atoutofthispart, IA1playernumber);
+	ContractOfAnIA(IA2cards, atoutofthispart, IA2playernumber);
+	ContractOfAnIA(IA3cards, atoutofthispart, IA3playernumber);
 	int numberofthecurrentturn = 0;
 	for (int i = 0; i < numberofcardperplayer; i++){
-		PlayOneTurn(humanplayer, IA1player, IA2player, IA3player, playerscorecounter, numberofthecurrentturn);
+		PlayOneTurn(humancards, IA1cards, IA2cards, IA3cards, playerscorecounter, numberofthecurrentturn);
 		numberofthecurrentturn++;
 	}
 	int iWinner = 0;
