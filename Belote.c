@@ -1,5 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#if defined(_WIN32) || defined(__MSDOS__)
+#include<windows.h>
+#define SPADE   "\xE2\x99\xA0"
+#define CLUB    "\xE2\x99\xA3"
+#define HEART   "\xE2\x99\xA5"
+#define DIAMOND "\xE2\x99\xA6"
+#else
+#define SPADE   "Spade" //\xE2\x99\xA0"
+#define CLUB    "Club"  //\xE2\x99\xA3"
+#define HEART   "Heart" // \xE2\x99\xA5"
+#define DIAMOND "Diamond" //\xE2\x99\xA6"
+#endif
+
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
 //const  char typejoueur1[] = "humain";
@@ -12,7 +25,7 @@ const int sizeofreferencingarray = 4;
 // This is the constant value of cards
 const char* TabValue[] = { "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
 // This is the constant color of cards
-const char* TabColor[] = { "Clubs", "Spades", "Hearts", "Diamonds" };
+const char* TabColor[] = { CLUB, SPADE, HEART, DIAMOND };
 
 // The struct CARD integrates in it-self the value and the color of a card
 typedef struct _CARD_ {
@@ -58,11 +71,11 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
 	printf("\n");
 
 	//Find index of card to be removed
-	
+	CARD result = IAcardgame[iMax];
 	for (int i = iMax; i < maxRemainingCardNumber -1; i++){
 		IAcardgame[i] = IAcardgame[i + 1];
 	}
-	return IAcardgame[iMax];
+	return result;
 }
 
 
@@ -361,8 +374,9 @@ void PlayOnePart(){
 
 
 
-int main()
-{
+int main(){
+#if defined(_WIN32) || defined(__MSDOS__)
+	SetConsoleOutputCP(65001);
+#endif
 	PlayOnePart();
-
 }
