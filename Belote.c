@@ -22,6 +22,7 @@ const int numberofplayer = 4;
 const int numberofcardsinthedeck = 32;
 const int numberofcardperplayer = 8;
 const int sizeofreferencingarray = 4;
+const int numberofcolor = 4;
 
 
 // This is the constant value of cards
@@ -65,28 +66,57 @@ int ContractOfAHuman(CARD* Deckofcardshuman, int Atout) {
 // output : IA contract
 int ContractOfAnIA(CARD* DeckofcardsIA, int Atout, int IAnumber) {
 	int IAcontract = 0;
-	int hardcardscounter = 0;
-	for (int i = 0; i < numberofcardperplayer; i++) {
-		if (DeckofcardsIA[i].index == 2 && DeckofcardsIA[i].atout == 1) {
-			hardcardscounter++;
-		}
-		else if (DeckofcardsIA[i].index == 4 && DeckofcardsIA[i].atout == 1) {
-			hardcardscounter++;
-		}
-		else if (DeckofcardsIA[i].index == 7 && DeckofcardsIA[i].atout == 1) {
-			hardcardscounter++;
-		}
-		else if (DeckofcardsIA[i].index == 3 && DeckofcardsIA[i].atout == 1) {
-			hardcardscounter++;
+	int hardvalueandcolor[4] = { 0 };
+	for (int j = 0; j < numberofcolor; j++) {
+		for (int i = 0; i < numberofcardperplayer; i++) {
+			if (DeckofcardsIA[i].index == 4 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 8;
+			}
+			else if (DeckofcardsIA[i].index == 2 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 7;
+			}
+			else if (DeckofcardsIA[i].index == 7 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 6;
+			}
+			else if (DeckofcardsIA[i].index == 3 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 5;
+			}
+			else if (DeckofcardsIA[i].index == 6 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 4;
+			}
+			else if (DeckofcardsIA[i].index == 5 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 3;
+			}
+			else if (DeckofcardsIA[i].index == 1 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 2;
+			}
+			else if (DeckofcardsIA[i].index == 0 && DeckofcardsIA[i].color == j) {
+				hardvalueandcolor[j] = hardvalueandcolor[j] + 1;
+			}
 		}
 	}
-	if (hardcardscounter <= 3) {
-		IAcontract = 80;
+	int iMax = 0;
+	printf("%d et %s\n", hardvalueandcolor[0], TabColor[0]);
+	for (int i = 1; i < numberofcolor; i++) {
+		printf("%d et %s\n", hardvalueandcolor[i], TabColor[i]);
+		if (hardvalueandcolor[i] > hardvalueandcolor[iMax]) {
+			iMax = i;
+		}
 	}
-	else if (hardcardscounter > 3) {
+	if (hardvalueandcolor[iMax] >= 17) {
 		IAcontract = 120;
+		printf("IA number %d announces a contract of %d points\n", IAnumber, IAcontract);
 	}
-	printf("IA number %d announces a contract of %d\n", IAnumber, IAcontract);
+	else if ((13 <= hardvalueandcolor[iMax]) && (hardvalueandcolor[iMax] < 17)) {
+		IAcontract = 80;
+		printf("IA number %d announces a contract of %d points\n", IAnumber, IAcontract);
+	}
+	else if(hardvalueandcolor[iMax] < 13){
+		IAcontract = 0;
+		printf("The IA doesn't have enough good cards. It announces no points\n");
+	}
+
+
 	printf("\n");
 	return IAcontract;
 }
@@ -430,23 +460,32 @@ void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedc
 // input : deck of cards of the human, the first IA, the second IA, and the third IA.
 // input : players score counter
 // input : the number of the current turn
-void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, int* Playerscorecounter, int Numberofthecurrentturn){
+void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, int* Playerscorecounter, int Numberofthecurrentturn, int Firstplayernumber){
 	int winneroftheturn = 0;
 	CARD* referencingarrayoftheplayedcards = malloc(sizeofreferencingarray * sizeof(CARD));
 	InitializedArray(referencingarrayoftheplayedcards, sizeofreferencingarray);
 	int Numberofplayedcards = 0;
-	PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
-	Numberofplayedcards++;
-	printf("\n");
-	PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
-	Numberofplayedcards++;
-	printf("\n");
-	PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
-	Numberofplayedcards++;
-	printf("\n");
-	PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
-	Numberofplayedcards++;
-	printf("\n");
+	for (int iPlayer = 0; iPlayer < numberofplayer; iPlayer++) {
+		int numPlayer = (Firstplayernumber + iPlayer) % numberofplayer;
+		if (numPlayer == 0) {
+			PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+		}
+		else {
+			switch (numPlayer) {
+			 case 1:
+				 PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 break;
+			 case 2:
+				 PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 break;
+			 case 3:
+				 PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 break;
+			}
+		}		
+		Numberofplayedcards++;
+		printf("\n");
+	}
 	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Numberofplayedcards, Playerscorecounter);
 }
 
@@ -477,7 +516,7 @@ void PlayOnePart(){
 	ContractOfAnIA(IA3cards, atoutofthispart, IA3playernumber);
 	int numberofthecurrentturn = 0;
 	for (int i = 0; i < numberofcardperplayer; i++){
-		PlayOneTurn(humancards, IA1cards, IA2cards, IA3cards, playerscorecounter, numberofthecurrentturn);
+		PlayOneTurn(humancards, IA1cards, IA2cards, IA3cards, playerscorecounter, numberofthecurrentturn,3);
 		numberofthecurrentturn++;
 	}
 	int iWinner = 0;
