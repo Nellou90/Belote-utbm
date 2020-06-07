@@ -64,7 +64,7 @@ int ContractOfAHuman(CARD* Deckofcardshuman, int Atout) {
 // input : Asset
 // input : the number of the IA
 // output : IA contract
-int ContractOfAnIA(CARD* DeckofcardsIA, int Atout, int IAnumber) {
+int ContractOfAnIA(CARD* DeckofcardsIA, int Atout, int IAnumber, int Contractofpreviousplayer) {
 	int IAcontract = 0;
 	int hardvalueandcolor[4] = { 0 };
 	for (int j = 0; j < numberofcolor; j++) {
@@ -96,27 +96,26 @@ int ContractOfAnIA(CARD* DeckofcardsIA, int Atout, int IAnumber) {
 		}
 	}
 	int iMax = 0;
-	printf("%d et %s\n", hardvalueandcolor[0], TabColor[0]);
+	printf("%d de %s\n", hardvalueandcolor[0], TabColor[0]);
 	for (int i = 1; i < numberofcolor; i++) {
-		printf("%d et %s\n", hardvalueandcolor[i], TabColor[i]);
+		printf("%d de %s\n", hardvalueandcolor[i], TabColor[i]);
 		if (hardvalueandcolor[i] > hardvalueandcolor[iMax]) {
 			iMax = i;
 		}
 	}
-	if (hardvalueandcolor[iMax] >= 17) {
+	printf("enchère sur %d de %s\n", hardvalueandcolor[iMax], TabColor[iMax]);
+	if (hardvalueandcolor[iMax] >= 17 && Contractofpreviousplayer < 120) {
 		IAcontract = 120;
-		printf("IA number %d announces a contract of %d points\n", IAnumber, IAcontract);
+		printf("IA number %d announces a contract of %d points of %s\n", IAnumber, IAcontract, TabColor[iMax]);
 	}
-	else if ((13 <= hardvalueandcolor[iMax]) && (hardvalueandcolor[iMax] < 17)) {
+	else if ((13 <= hardvalueandcolor[iMax]) && (hardvalueandcolor[iMax] < 17) && Contractofpreviousplayer < 80) {
 		IAcontract = 80;
-		printf("IA number %d announces a contract of %d points\n", IAnumber, IAcontract);
+		printf("IA number %d announces a contract of %d points of %s\n", IAnumber, IAcontract, TabColor[iMax]);
 	}
-	else if(hardvalueandcolor[iMax] < 13){
+	else if(hardvalueandcolor[iMax] < 13 || Contractofpreviousplayer >= 120 || hardvalueandcolor[iMax] < 17 && Contractofpreviousplayer >= 80){
 		IAcontract = 0;
-		printf("The IA doesn't have enough good cards. It announces no points\n");
+		printf(" the IA number %d announces that it pass \n", IAnumber);
 	}
-
-
 	printf("\n");
 	return IAcontract;
 }
@@ -163,6 +162,7 @@ int ChooseARandomAtout() {
 	printf("\n");
 	return atoutfortheparty;
 }
+
 
 
 
@@ -510,10 +510,14 @@ void PlayOnePart(){
 	IA1cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA1playernumber);
 	IA2cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
 	IA3cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA3playernumber);
-	ContractOfAHuman(humancards, atoutofthispart);
-	ContractOfAnIA(IA1cards, atoutofthispart, IA1playernumber);
-	ContractOfAnIA(IA2cards, atoutofthispart, IA2playernumber);
-	ContractOfAnIA(IA3cards, atoutofthispart, IA3playernumber);
+	int humancontract;
+	int IA1contract;
+	int IA2contract;
+	int IA3contract;
+	humancontract = ContractOfAHuman(humancards, atoutofthispart);
+	IA1contract = ContractOfAnIA(IA1cards, atoutofthispart, IA1playernumber, humancontract);
+	IA2contract = ContractOfAnIA(IA2cards, atoutofthispart, IA2playernumber, IA1contract);
+	IA3contract = ContractOfAnIA(IA3cards, atoutofthispart, IA3playernumber, IA2contract);
 	int numberofthecurrentturn = 0;
 	for (int i = 0; i < numberofcardperplayer; i++){
 		PlayOneTurn(humancards, IA1cards, IA2cards, IA3cards, playerscorecounter, numberofthecurrentturn,3);
