@@ -29,6 +29,8 @@ const int numberofcolor = 4;
 const char* TabValue[] = { "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
 // This is the constant color of cards
 const char* TabColor[] = { CLUB, SPADE, HEART, DIAMOND };
+// This is the constant name of players
+const char* TabName[] = { "Human", "George", "Audrey", "Jack" };
 
 // The struct CONTRACT integrates in it-self the value of the contract and the color of the contract
 typedef struct _CONTRACT_ {
@@ -61,10 +63,8 @@ void FillTheTrumpPartOfTheStructCard(CARD* Deckofcardsplayer, int Trump) {
 // It hasn't parameter input but it returns the player who will start bidding.
 // output : Player who will start bidding;
 int ChooseRandomlyAPlayerWhoWillStartBidding() {
-	srand(time(NULL));
 	int playerwhowillstartbidding = rand() % 4;
 	return playerwhowillstartbidding;
-
 }
 
 // This fonction has as goal to ask to human player how many point he projects to do during the part of the games.
@@ -72,7 +72,7 @@ int ChooseRandomlyAPlayerWhoWillStartBidding() {
 // input : deck of cards of the human 
 // input : Asset
 // output : Human contract
-CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Contractofpreviousplayer) {
+CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Bestcontractofthepart) {
 	CONTRACT humancontract;
 	int answer;
 	int answer2;
@@ -112,7 +112,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Contractofpreviouspla
 		printf("Choose your contract between 80 and 160 : \n");
 		printf("\n");
 		scanf("%d", &(humancontract.valueContract));
-		while (humancontract.valueContract < 80 && humancontract.valueContract > 160 && humancontract.valueContract < Contractofpreviousplayer.valueContract) {
+ 		while (humancontract.valueContract < 80 && humancontract.valueContract > 160 || humancontract.valueContract <= Bestcontractofthepart.valueContract) {
 			printf("Attention your contract must be superior to the contract of the previous player. \n Press 0 to PASS and 1 to CONTINUE\n");
 			printf("\n");
 			scanf("%d", &answer2);
@@ -131,6 +131,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Contractofpreviouspla
 			}
 		}
 	}
+	printf("\n");
 	return humancontract;
 }
 
@@ -140,7 +141,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Contractofpreviouspla
 // input : Asset
 // input : the number of the IA
 // output : IA contract
-CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Contractofpreviousplayer) {
+CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontractofthepart) {
 	CONTRACT IAcontract;
 	int hardvalueandcolor[4] = { 0 };
 	for (int j = 0; j < numberofcolor; j++) {
@@ -175,27 +176,26 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Contractofpr
 	printf("%d de %s\n", hardvalueandcolor[0], TabColor[0]);
 	for (int i = 1; i < numberofcolor; i++) {
 		printf("%d de %s\n", hardvalueandcolor[i], TabColor[i]);
-		printf("\n");
 		if (hardvalueandcolor[i] > hardvalueandcolor[iMax]) {
 			iMax = i;
 		}
 	}
 	printf("enchère sur %d de %s\n", hardvalueandcolor[iMax], TabColor[iMax]);
 	printf("\n");
-	if (hardvalueandcolor[iMax] >= 20 && Contractofpreviousplayer.valueContract < 120) {
+	if (hardvalueandcolor[iMax] >= 20 && Bestcontractofthepart.valueContract < 120) {
 		IAcontract.valueContract = 120;
 		IAcontract.colorContract = iMax;
-		printf("IA number %d announces a CONTRACT of %d points of %s\n", IAnumber, IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+		printf("IA %s announces a CONTRACT of %d points of %s\n", TabName[IAnumber], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 	}
-	else if ((13 <= hardvalueandcolor[iMax]) && (hardvalueandcolor[iMax] < 20) && Contractofpreviousplayer.valueContract < 80) {
+	else if ((13 <= hardvalueandcolor[iMax]) && (hardvalueandcolor[iMax] < 20) && Bestcontractofthepart.valueContract < 80) {
 		IAcontract.valueContract = 80;
 		IAcontract.colorContract = iMax;
-		printf("IA number %d announces a CONTRACT of %d points of %s\n", IAnumber, IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+		printf("IA %s announces a CONTRACT of %d points of %s\n", TabName[IAnumber], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 	}
-	else if(hardvalueandcolor[iMax] < 13 || Contractofpreviousplayer.valueContract >= 120 || hardvalueandcolor[iMax] < 20 && Contractofpreviousplayer.valueContract >= 80){
+	else if(hardvalueandcolor[iMax] < 13 || Bestcontractofthepart.valueContract >= 120 || hardvalueandcolor[iMax] < 20 && Bestcontractofthepart.valueContract >= 80){
 		IAcontract.valueContract = 0;
 		IAcontract.colorContract = -1;
-		printf(" the IA number %d announces that it PASS \n", IAnumber);
+		printf(" the IA %s announces that it PASS \n", TabName[IAnumber]);
 	}
 	printf("\n");
 	return IAcontract;
@@ -206,36 +206,62 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Contractofpr
 // It takes in entry the first player who will start bidding and the decks of cards of players. But also the number of each IA.
 // It returnes an array of CONTRACT that contain the contract and the color of the contract of each player.
 CONTRACT* DetermineTrumpColorAndManageBids(int Firstplayerwhostart, CARD* Deckofcardshuman, CARD* DeckofcardsIA1, CARD* DeckofcardsIA2, CARD* DeckofcardsIA3, int IA1number, int IA2number, int IA3number) {
-	CONTRACT beginingbids = { 0,-1 };
+	CONTRACT max = { 0,-1 };
 	CONTRACT* contractplayerandcolortrump = (CONTRACT*)malloc(numberofcardsinthedeck * sizeof(CONTRACT));
 	if (Firstplayerwhostart == 0) {
-		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, beginingbids);
-		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, contractplayerandcolortrump[0]);
-		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, contractplayerandcolortrump[1]);
-		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, contractplayerandcolortrump[2]);
+		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, max);
+		if (contractplayerandcolortrump[0].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[0];
+		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, max);
+		if (contractplayerandcolortrump[1].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[1];
+		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, max);
+		if (contractplayerandcolortrump[2].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[2];
+		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, max);
 	}
 	else if (Firstplayerwhostart == 1) {
-		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, beginingbids);
-		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, contractplayerandcolortrump[1]);
-		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, contractplayerandcolortrump[2]);
-		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, contractplayerandcolortrump[3]);
+		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, max);
+		if (contractplayerandcolortrump[1].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[1];
+		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, max);
+		if (contractplayerandcolortrump[2].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[2];
+		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, max);
+		if (contractplayerandcolortrump[3].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[3];
+		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, max);
 	}
 	else if (Firstplayerwhostart == 2) {
-		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, beginingbids);
-		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, contractplayerandcolortrump[2]);
-		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, contractplayerandcolortrump[3]);
-		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, contractplayerandcolortrump[0]);
+		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, max);
+		if (contractplayerandcolortrump[2].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[2];
+		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, max);
+		if (contractplayerandcolortrump[3].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[3];
+		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, max);
+		if (contractplayerandcolortrump[0].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[0];
+		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, max);
 	}
 	else if (Firstplayerwhostart == 3) {
-		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, beginingbids);
-		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, contractplayerandcolortrump[3]);
-		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, contractplayerandcolortrump[0]);
-		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, contractplayerandcolortrump[1]);
+		contractplayerandcolortrump[3] = ContractOfAnIA(DeckofcardsIA3, IA3number, max);
+		if (contractplayerandcolortrump[3].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[3];
+		contractplayerandcolortrump[0] = ContractOfAHuman(Deckofcardshuman, max);
+		if (contractplayerandcolortrump[0].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[0];
+		contractplayerandcolortrump[1] = ContractOfAnIA(DeckofcardsIA1, IA1number, max);
+		if (contractplayerandcolortrump[1].valueContract >= max.valueContract)
+			max = contractplayerandcolortrump[1];
+		contractplayerandcolortrump[2] = ContractOfAnIA(DeckofcardsIA2, IA2number, max);
 	}
 	return contractplayerandcolortrump;
 }
 
-
+void figergrainealeatoire() {
+	srand(time(NULL));
+}
 
 
 
@@ -271,13 +297,12 @@ int GetValueOfACard(CARD Card) {
 
 // This function has as goal to choose a random atout.
 // It returns the color of the atout for the part.
-int ChooseARandomAtout() {
-	srand(time(NULL));
-	int atoutfortheparty = rand() % 4;
-	printf("The atout that has been choose is %s\n", TabColor[atoutfortheparty]);
-	printf("\n");
-	return atoutfortheparty;
-}
+//int ChooseARandomAtout() {
+//	int atoutfortheparty = rand() % 4;
+//	printf("The atout that has been choose is %s\n", TabColor[atoutfortheparty]);
+//	printf("\n");
+//	return atoutfortheparty;
+//}
 
 
 
@@ -497,12 +522,15 @@ CARD ChooseAndPlayACard(CARD* Deckofcardsofoneplayer, int Numberofthecurrentturn
 // input : A referencing array of played cards of the current turn
 // input : the played card
 // input : the number of played card during the current turn 
-void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofplayedcardofturn, int Numberofplayedcardofturn){
-	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].index = Playedcard.index;
-	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].color = Playedcard.color;
-	Referencingarrayofplayedcardofturn[Numberofplayedcardofturn].trump = Playedcard.trump;
+void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofplayedcardofturn, int Numberoftheplayer){
+	Referencingarrayofplayedcardofturn[Numberoftheplayer].index = Playedcard.index;
+	Referencingarrayofplayedcardofturn[Numberoftheplayer].color = Playedcard.color;
+	Referencingarrayofplayedcardofturn[Numberoftheplayer].trump = Playedcard.trump;
 
 }
+
+
+
 
 
 // This function has as goal to determined a winner between the player.
@@ -511,12 +539,12 @@ void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofpl
 // input : number of played cards during the turn
 // input : a player score counter
 // output : a boolean which corresponds to the existence of a winner or not
-int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int Numberofplayedcardsduringtheturn, int* Playerscorecounter){
+int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* Playerscorecounter){
 	int i;
 	CARD max = Referencingarrayofplayedcards[0];
-	int winningplayernumber = 0;
+	int winningplayernumber = -1;
 	int winnerspoints = Referencingarrayofplayedcards[0].index;
-	for (i = 1; i < Numberofplayedcardsduringtheturn; i++){
+	for (i = 0; i < numberofplayer; i++){
 		winnerspoints += Referencingarrayofplayedcards[i].index;
 		if (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)){
 			max=Referencingarrayofplayedcards[i];
@@ -546,10 +574,10 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int N
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAHumanPlayer(CARD* Deckofcardsofhuman, CARD* Referencingarrayoftheplayedcards, int Numberofplayedscardsduringturn, int Numberofcurrentturn){
+void PlayAHumanPlayer(CARD* Deckofcardsofhuman, CARD* Referencingarrayoftheplayedcards, int Numberoftheplayer, int Numberofcurrentturn){
 	CARD playedcard = { 0,0 };
 	playedcard = ChooseAndPlayACard(Deckofcardsofhuman, Numberofcurrentturn);
-	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
+	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberoftheplayer);
 	
 }
 
@@ -559,10 +587,10 @@ void PlayAHumanPlayer(CARD* Deckofcardsofhuman, CARD* Referencingarrayoftheplaye
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedcards,  int Numberofplayedscardsduringturn, int Numberofcurrentturn){
-	CARD playedcard = { 0,0 };
+void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedcards,  int Numberoftheplayer, int Numberofcurrentturn){
+	CARD playedcard = { -1,-1 };
 	playedcard = PlayIA(DeckofcardsofoneIA, Numberofcurrentturn);
-	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberofplayedscardsduringturn);
+	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberoftheplayer);
 }
 
 // This function has as goal to play a turn. It means that the role of this function is to make the human and the three AIs play in a successive way.
@@ -574,35 +602,37 @@ void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 	int winneroftheturn = 0;
 	CARD* referencingarrayoftheplayedcards = malloc(sizeofreferencingarray * sizeof(CARD));
 	InitializedArray(referencingarrayoftheplayedcards, sizeofreferencingarray);
-	int Numberofplayedcards = 0;
+	int numberofeachplayer[4] = { 0,1,2,3 };
 	for (int iPlayer = 0; iPlayer < numberofplayer; iPlayer++) {
 		int numPlayer = (Firstplayernumber + iPlayer) % numberofplayer;
 		if (numPlayer == 0) {
-			PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+			PlayAHumanPlayer(Humandeck, referencingarrayoftheplayedcards, numberofeachplayer[0], Numberofthecurrentturn);
 		}
 		else {
 			switch (numPlayer) {
 			 case 1:
-				 PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, numberofeachplayer[1], Numberofthecurrentturn);
 				 break;
 			 case 2:
-				 PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, numberofeachplayer[2], Numberofthecurrentturn);
 				 break;
 			 case 3:
-				 PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, Numberofplayedcards, Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, numberofeachplayer[3], Numberofthecurrentturn);
 				 break;
 			}
 		}		
-		Numberofplayedcards++;
 		printf("\n");
 	}
-	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Numberofplayedcards, Playerscorecounter);
+	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Playerscorecounter);
 }
 
 // The purpose of this function is to play a party, i.e. to play several turns (as many as there are cards in the player's hands).
 // There is no input parameters but the function dynamically allocates a  piece of memory to deck of cards of the human and IAs
 // The function displays the winner of this party.
 void PlayOnePart(){
+	int playerscorecounter[4] = { 0 };
+	CARD** deckofcardsperplayer;
+	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
 	CARD* humancards = malloc(numberofcardperplayer * sizeof(CARD*));
 	CARD* IA1cards = malloc(numberofcardperplayer * sizeof(CARD*));
 	CARD* IA2cards = malloc(numberofcardperplayer * sizeof(CARD*));
@@ -611,9 +641,6 @@ void PlayOnePart(){
 	int IA1playernumber = 1;
 	int IA2playernumber = 2;
 	int IA3playernumber = 3;
-	int playerscorecounter[4] = { 0 };
-	CARD** deckofcardsperplayer;
-	deckofcardsperplayer = DistributingAndShufflingADeckOfCards();
 	humancards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, humanplayernumber);
 	IA1cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA1playernumber);
 	IA2cards = ChangeFromATwoDimensionalArrayToASingleArray(deckofcardsperplayer, IA2playernumber);
@@ -632,6 +659,7 @@ void PlayOnePart(){
 	}
 	int playerwhobiginsthepart = iMax;
 	int trumpforthepart = contractplayer[iMax].colorContract;
+	FillTheTrumpPartOfTheStructCard(humancards, trumpforthepart);
 	FillTheTrumpPartOfTheStructCard(IA1cards, trumpforthepart);
 	FillTheTrumpPartOfTheStructCard(IA2cards, trumpforthepart);
 	FillTheTrumpPartOfTheStructCard(IA3cards, trumpforthepart);
@@ -646,6 +674,7 @@ void PlayOnePart(){
 
 
 int main(){
+	figergrainealeatoire();
 #if defined(_WIN32) || defined(__MSDOS__)
 	SetConsoleOutputCP(65001);
 #endif
