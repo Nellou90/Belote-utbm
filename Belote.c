@@ -338,10 +338,12 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
 	int iMax = 0;
 	int maxRemainingCardNumber = numberofcardperplayer - Currentturnnumber;
 	for (i = 1; i < maxRemainingCardNumber; i++){
-		if (GetValueOfACard(IAcardgame[i]) > GetValueOfACard(IAcardgame[iMax])){
+		if (GetValueOfACard(IAcardgame[i]) >
+			GetValueOfACard(IAcardgame[iMax])){
 			iMax = i;
 		}
 	}
+	
 	printf("The IA chose to play the card %s of %s\n", TabValue[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
 	printf("\n");
 
@@ -557,7 +559,7 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 
 	if (winningplayernumber != -1) {
 		Playerscorecounter[winningplayernumber] = Playerscorecounter[winningplayernumber] + winnerspoints;
-		printf("Player %d, wins. His score is increased by %d, and reaches %d.\n", winningplayernumber, winnerspoints, Playerscorecounter[winningplayernumber]);
+		printf("Player %s, wins. His score is increased by %d, and reaches %d.\n", TabName[winningplayernumber], winnerspoints, Playerscorecounter[winningplayernumber]);
 		printf("\n");
 	}
 	else {
