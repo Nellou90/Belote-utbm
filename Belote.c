@@ -27,7 +27,8 @@ const int numberofcolor = 4;
 
 
 // This is the constant value of cards
-const char* TabValue[] = { "7", "8", "9", "10", "J", "Q", "K", "A" };
+const char* TabCardName[] = { "7", "8", "9", "10", "J", "Q", "K", "A" };
+const int TabValues[] = { 0, 1, 2, 6, 3, 4, 5, 7 };
 const char* NameTeam[] = { "The enemy", "Challengers" };
 const int PointNormal[] = { 0,0,0,10,2,3,4,11 };
 const int PointTrump[] = { 0,0,14,10,20,3,4,11 };
@@ -83,7 +84,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Bestcontractofthepart
 	printf("\n");
 	printf("Here are your cards : \n");
 	for (int i = 0; i < numberofcardperplayer; i++) {
-		printf("| %s%s |   ", TabValue[Deckofcardshuman[i].index], TabColor[Deckofcardshuman[i].color]);
+		printf("| %s%s |   ", TabCardName[Deckofcardshuman[i].index], TabColor[Deckofcardshuman[i].color]);
 	}
 	printf("\n");
 	printf("\n");
@@ -278,23 +279,23 @@ void figergrainealeatoire() {
 // output : Strenght of the card
 int GetValueOfACard(CARD Card) {
 	if (Card.trump == 0) {
-		return Card.index;
+		return TabValues[Card.index];
 	}
 	else if (Card.trump == 1) {
 		if (Card.index == 2) {
-			return 19;
+			return 24;
 		}
 		else if (Card.index == 4) {
-			return 20;
+			return 30;
 		}
 		else if (Card.index == 7) {
-			return 18;
+			return 21;
 		}
 		else if (Card.index == 3) {
-			return 17;
+			return 20;
 		}
 		else {
-			return (Card.index + 10);
+			return (TabValues[Card.index] + 10);
 		}
 	}
 	return -1;
@@ -392,7 +393,7 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofpla
 	// First part of tne condition : If the IA is the first player to play, it plays its best card, trump or no trump.
 	if (Firstplayer == NumberofIA) {
 		result = IAcardgame[iMax];
-		printf("The IA %s playes the CARD :	  | %s%s |\n", TabName[NumberofIA], TabValue[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+		printf("The IA %s playes the CARD :	  | %s%s |\n", TabName[NumberofIA], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
 		printf("\n");
 
 		//Find index of card to be removed
@@ -465,7 +466,7 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofpla
 				break;
 			}
 		}
-		printf("The IA %s playes the CARD :	  | %s%s |\n", TabName[NumberofIA], TabValue[result.index], TabColor[result.color]);
+		printf("The IA %s playes the CARD :	  | %s%s |\n", TabName[NumberofIA], TabCardName[result.index], TabColor[result.color]);
 		printf("\n");
 
 
@@ -528,7 +529,7 @@ CARD** DistributeADeckOfCardsPerPlayer(CARD* Shuffleddeckofcards, CARD** Cardspe
 	for (i = 0; i < numberofplayer; i++){
 		for (j = 0; j < numberofcardperplayer; j++){
 			Cardsperplayer[i][j] = Shuffleddeckofcards[m];
-			printf("joueur %d : %s de %s\n", i, TabValue[Shuffleddeckofcards[m].index], TabColor[Shuffleddeckofcards[m].color]);
+			printf("joueur %d : %s de %s\n", i, TabCardName[Shuffleddeckofcards[m].index], TabColor[Shuffleddeckofcards[m].color]);
 			m++;
 		}
 		printf("\n");
@@ -590,13 +591,14 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn, 
 	int temp = 0;
 	CARD chosencard = { 0,0 };
 	int i = 0;
+	int askedcolor = Referencingarrayofplayedcard[Firstplayer].color;
 	if (Firstplayer == Humannumber) {
 		printf("\n");
 		printf("			Choose the card you want to play by typing the card number:\n");
 		printf("\n");
 		printf("\n");
 		for (i = 0; i < numberofcardperplayer - Numberofthecurrentturn; i++) {
-			printf(" %d : | %s%s |   ", i, TabValue[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
+			printf(" %d : | %s%s |   ", i, TabCardName[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
 
 		}
 		printf("\n");
@@ -614,17 +616,15 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn, 
 		printf("\n");
 		printf("\n");
 		for (i = 0; i < numberofcardperplayer - Numberofthecurrentturn; i++) {
-			printf(" %d : | %s%s |   ", i, TabValue[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
+			printf(" %d : | %s%s |   ", i, TabCardName[Deckofcardofoneplayer[i].index], TabColor[Deckofcardofoneplayer[i].color]);
 			if (Deckofcardofoneplayer[i].color == Referencingarrayofplayedcard[Firstplayer].color) {
-				temp = 1;
+				temp++;
 			}
-			else {
-				temp = 0;
-			}
+			
 		}
 		printf("\n");
 		scanf("%d", &i);
-		if (Deckofcardofoneplayer[i].color != Referencingarrayofplayedcard[Firstplayer].color && temp == 1) {
+		if (Deckofcardofoneplayer[i].color != askedcolor && temp > 0) {
 			printf("			If you have a card of the color %s, you have to play this card !\n", TabColor[Referencingarrayofplayedcard[Firstplayer].color]);
 			scanf("%d", &i);
 			printf("\n");
@@ -713,19 +713,19 @@ int DetermineTheWinnerTeam(int* Playerscorecounter, CONTRACT Contract, int Contr
 // input : number of played cards during the turn
 // input : a player score counter
 // output : a boolean which corresponds to the existence of a winner or not
-int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* Playerscorecounter){
+int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* Playerscorecounter, int firstPlayer){
 	int i;
-	CARD max = Referencingarrayofplayedcards[0];
+	CARD max = { -1,-1,-1 };
+	int askedColor = Referencingarrayofplayedcards[firstPlayer].color;
 	int winningplayernumber = -1;
-	int winnerspoints = GetPointOfACard(Referencingarrayofplayedcards[0]);
+	int winnerspoints = 0;
 	for (i = 0; i < numberofplayer; i++){
 		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[i]);
-		if (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)){
+		if ( (i==0)
+			|| ((askedColor == Referencingarrayofplayedcards[i].color) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))
+			|| ((askedColor ==Referencingarrayofplayedcards[i].trump==1) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))){
 			max=Referencingarrayofplayedcards[i];
 			winningplayernumber = i;
-		}
-		else if (GetValueOfACard(Referencingarrayofplayedcards[i]) == GetValueOfACard(max)) {
-			winningplayernumber = -1;
 		}
 	}
 
@@ -735,7 +735,7 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 		printf("\n");
 	}
 	else {
-		printf("At least 2 players are tied, The sum of the lost points is %d.\n", winnerspoints);
+		printf("Impossible, there should be a winner.\n", winnerspoints);
 		printf("\n");
 	}
 	return (winningplayernumber != -1);
@@ -797,7 +797,7 @@ void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 		}		
 		printf("\n");
 	}
-	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Playerscorecounter);
+	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Playerscorecounter, Firstplayernumber);
 }
 
 // The purpose of this function is to play a party, i.e. to play several turns (as many as there are cards in the player's hands).
@@ -906,7 +906,7 @@ void DisplayTheInterfaceOfTheGame() {
 }
 
 int main(){
-	//figergrainealeatoire();
+	figergrainealeatoire();
 #if defined(_WIN32) || defined(__MSDOS__)
 	SetConsoleOutputCP(65001);
 #endif
