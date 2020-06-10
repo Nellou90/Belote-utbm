@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include<conio.h>
 #if defined(_WIN32) || defined(__MSDOS__)
 #include<windows.h>
 #define SPADE   "\xE2\x99\xA0"
@@ -27,6 +28,9 @@ const int numberofcolor = 4;
 
 // This is the constant value of cards
 const char* TabValue[] = { "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
+const char* NameTeam[] = { "The enemy", "Challengers" };
+const int PointNormal[] = { 0,0,0,10,2,3,4,11 };
+const int PointTrump[] = { 0,0,14,10,20,3,4,11 };
 // This is the constant color of cards
 const char* TabColor[] = { CLUB, SPADE, HEART, DIAMOND };
 // This is the constant name of players
@@ -306,8 +310,6 @@ int GetValueOfACard(CARD Card) {
 
 
 
-
-
 // This function takes two cards as input and returns an equality between the two cards.
 // input parameter : Card 1.
 // input parameter : Card 2.
@@ -328,29 +330,142 @@ void InitializedArray(CARD* Deckofcards, int Sizeofdeckofcards){
 	}
 }
 
+// This function has as goal to determine the smallest card in deck in relation to a color that is above a given value threshold
+// It takes in entry the deck of cards of a player, the number of remaining card, the color which will serves to determine the minimum.
+// Ti returns the smallest card in the deck in function of the color.
+CARD DetermineTheSmallestCardOfAColor(CARD* Deckofcardsofaplayer, int Numberofremainingcard, int Askedcolor, int Valuethreshold ) {
+	CARD thesmallestcard = { -1,-1,-1 };
+	int iSmallest = -1;
+	for (int i = 0; i < Numberofremainingcard ; i++) {
+		if (
+			((Deckofcardsofaplayer[i].color == Askedcolor) || (Askedcolor==-1))
+			&& ((iSmallest == -1) || (GetValueOfACard(Deckofcardsofaplayer[i]) < GetValueOfACard(Deckofcardsofaplayer[iSmallest])))
+			&& (GetValueOfACard(Deckofcardsofaplayer[i])> Valuethreshold)) {
+			iSmallest = i;
+		}
+	}
+	if (iSmallest == -1) {
+		printf("aucune carte de la bonne couleur n'est au dessus du seuille\n");
+	}
+	else {
+		thesmallestcard = Deckofcardsofaplayer[iSmallest];
+		printf("la plus petite carte de la couleur %s et %s \n", TabColor[Askedcolor], TabValue[thesmallestcard.index]);
+	}
+	return thesmallestcard;
+}
+
+int DetermineIfTheresAnAssetAndReturnTheColor(CARD* Deckofcardsofaplayer, int Numberofremainingcard) {
+	for (int i = 0; i < Numberofremainingcard; i++) {
+		if (Deckofcardsofaplayer[i].trump == 1) {
+			return Deckofcardsofaplayer[i].color;
+		}
+	}
+	return -1;
+}
+
+
 // This function takes the IA card game and plays the IA, it returns the card played by the IA.
 // input paramater : remaining decks of cards to be played
 // input paramater : current turn number (use only for access to the correct portion of the array that implements the deck of cards)
 // parmater output : Played Card by IA
 // output : Card deck remaining to be played reinitialized so that the played card is removed and the array is consistent in relation to (Currentturnnumber + 1)
-CARD PlayIA(CARD* IAcardgame, int Currentturnnumber){
-	int i=0;
+CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofplayedcards, int Firstplayer, int NumberofIA){
+	int i = 0;
 	int iMax = 0;
+	int j = 0;
 	int maxRemainingCardNumber = numberofcardperplayer - Currentturnnumber;
-	for (i = 1; i < maxRemainingCardNumber; i++){
-		if (GetValueOfACard(IAcardgame[i]) >
-			GetValueOfACard(IAcardgame[iMax])){
+	CARD result = { -1,-1,-1 };
+	int colorofthecurrentturn = -1;
+	int trumpcolor = DetermineIfTheresAnAssetAndReturnTheColor(IAcardgame, maxRemainingCardNumber);
+	CARD bestcardplayedatthistime = { -1,-1,-1 };
+	int jBest = 0;
+	for (i = 1; i < maxRemainingCardNumber; i++) {
+		if (GetValueOfACard(IAcardgame[i]) > GetValueOfACard(IAcardgame[iMax])) {
 			iMax = i;
 		}
 	}
-	
-	printf("The IA chose to play the card %s of %s\n", TabValue[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
-	printf("\n");
+	// First part of tne condition : If the IA is the first player to play, it plays its best card, trump or no trump.
+	if (Firstplayer == NumberofIA) {
+		result = IAcardgame[iMax];
+		printf("The IA %s chose to play the card %s of %s\n", TabName[NumberofIA], TabValue[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+		printf("\n");
 
-	//Find index of card to be removed
-	CARD result = IAcardgame[iMax];
-	for (int i = iMax; i < maxRemainingCardNumber -1; i++){
-		IAcardgame[i] = IAcardgame[i + 1];
+		//Find index of card to be removed
+		for (int i = iMax; i < maxRemainingCardNumber - 1; i++) {
+			IAcardgame[i] = IAcardgame[i + 1];
+		}
+	}
+	// Second part of the condition : else the IA has to play a card of the first color play to respect the rules of the Belote
+	else {
+		colorofthecurrentturn = Referencingarrayofplayedcards[Firstplayer].color;
+		// Determine the best played card until now
+		for (j = 1; j < numberofplayer; j++) {
+			if (GetValueOfACard(Referencingarrayofplayedcards[j]) > GetValueOfACard(Referencingarrayofplayedcards[jBest])) {
+				jBest = j;
+			}
+		}
+		bestcardplayedatthistime = Referencingarrayofplayedcards[jBest];
+		// If the best played card until now is of the asked color, the IA has two choice.
+		if (bestcardplayedatthistime.color == colorofthecurrentturn) {
+			//1
+			int IAhasaskedcolor= (DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, colorofthecurrentturn,-1).index != -1);
+			// First choice : the IA has the asked color: if it can wins, it playes the smallest card which allows it to win.
+			if (IAhasaskedcolor){
+				//3
+				result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, colorofthecurrentturn, GetValueOfACard(bestcardplayedatthistime));
+			    //else if it can't wins, it playes the smallest card of the asked color.
+				if (result.index == -1) {
+					result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, colorofthecurrentturn, -1);
+				}
+			}
+			else {
+				//4
+				// If the IA has a trump, IA plays the smallest card with asset color *****************************
+				if (trumpcolor!=-1) {
+					//5
+					result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, trumpcolor, GetValueOfACard(bestcardplayedatthistime));
+					if (result.index == -1) {
+						result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, trumpcolor, -1);
+					}
+
+				}
+				else {
+					//6
+					result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, -1, -1);
+				}
+			}
+		}
+		else {
+			//2
+			int iaHasAskedColor = (DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, colorofthecurrentturn, -1).index != -1);
+			if (iaHasAskedColor){
+				//7
+				result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, colorofthecurrentturn, -1);
+			}
+			else {
+				//8
+				result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, trumpcolor, GetValueOfACard(bestcardplayedatthistime));
+				if (result.index == -1) {
+					result = DetermineTheSmallestCardOfAColor(IAcardgame, maxRemainingCardNumber, trumpcolor, -1);
+				}
+
+			}
+		}
+
+		int iResult;
+		for (int m = 0; m < maxRemainingCardNumber; m++) {
+			if ((IAcardgame[m].color == result.color) && (IAcardgame[m].index == result.index)) {// && GetValueOfACard(IAcardgame[m]) > GetValueOfACard(bestcardplayedatthistime) && GetValueOfACard(IAcardgame[m]) < GetValueOfACard(IAcardgame[iMax])) {
+				iResult = m;
+				break;
+			}
+		}
+		printf("The IA %s chose to play the card %s of %s\n", TabName[NumberofIA], TabValue[result.index], TabColor[result.color]);
+		printf("\n");
+
+		//Find index of card to be removed
+		for (int i = iResult; i < maxRemainingCardNumber - 1; i++) {
+			IAcardgame[i] = IAcardgame[i + 1];
+		}
 	}
 	return result;
 }
@@ -531,8 +646,31 @@ void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofpl
 
 }
 
+// This function has as goal to determine the point of a card
+int GetPointOfACard(CARD Card) {
+	if (Card.trump == 1) {
+		return PointTrump[Card.index];
+	}
+	return PointNormal[Card.index];
+}
 
-
+// This function has as goal to determine the winner team in relation to score counter of players.
+int DetermineTheWinnerTeam(int* Playerscorecounter, CONTRACT Contract, int Contractteam, int* scoreteam) {
+	int winnerteam;
+	scoreteam[0] = Playerscorecounter[0] + Playerscorecounter[2];
+	scoreteam[1] = Playerscorecounter[1] + Playerscorecounter[3];
+	if ( Contractteam == 0) {
+		if (scoreteam[0] > 82 && scoreteam[0] > Contract.valueContract) {
+			winnerteam = 0;
+		}
+	}
+	else if (Contractteam == 1) {
+		if (scoreteam[1] > 82 && scoreteam[1] > Contract.valueContract) {
+			winnerteam = 1;
+		}
+	}
+	return winnerteam;
+}
 
 
 // This function has as goal to determined a winner between the player.
@@ -545,9 +683,9 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 	int i;
 	CARD max = Referencingarrayofplayedcards[0];
 	int winningplayernumber = -1;
-	int winnerspoints = Referencingarrayofplayedcards[0].index;
+	int winnerspoints = GetPointOfACard(Referencingarrayofplayedcards[0]);
 	for (i = 0; i < numberofplayer; i++){
-		winnerspoints += Referencingarrayofplayedcards[i].index;
+		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[i]);
 		if (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)){
 			max=Referencingarrayofplayedcards[i];
 			winningplayernumber = i;
@@ -589,9 +727,9 @@ void PlayAHumanPlayer(CARD* Deckofcardsofhuman, CARD* Referencingarrayoftheplaye
 // input : referencing array of the played cards
 // input : number of played cards
 // input : player score counter
-void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedcards,  int Numberoftheplayer, int Numberofcurrentturn){
+void PlayAnIAPlayer(CARD* DeckofcardsofoneIA, CARD* Referencingarrayoftheplayedcards,  int Numberoftheplayer, int Numberofcurrentturn, int Firstplayeroftheturn){
 	CARD playedcard = { -1,-1 };
-	playedcard = PlayIA(DeckofcardsofoneIA, Numberofcurrentturn);
+	playedcard = PlayIA(DeckofcardsofoneIA, Numberofcurrentturn, Referencingarrayoftheplayedcards, Firstplayeroftheturn, Numberoftheplayer);
 	AddPlayedCardToReferencingArray(playedcard, Referencingarrayoftheplayedcards, Numberoftheplayer);
 }
 
@@ -613,13 +751,13 @@ void PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 		else {
 			switch (numPlayer) {
 			 case 1:
-				 PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, numberofeachplayer[1], Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA1deck, referencingarrayoftheplayedcards, numberofeachplayer[1], Numberofthecurrentturn, Firstplayernumber);
 				 break;
 			 case 2:
-				 PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, numberofeachplayer[2], Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA2deck, referencingarrayoftheplayedcards, numberofeachplayer[2], Numberofthecurrentturn, Firstplayernumber);
 				 break;
 			 case 3:
-				 PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, numberofeachplayer[3], Numberofthecurrentturn);
+				 PlayAnIAPlayer(IA3deck, referencingarrayoftheplayedcards, numberofeachplayer[3], Numberofthecurrentturn, Firstplayernumber);
 				 break;
 			}
 		}		
@@ -670,15 +808,74 @@ void PlayOnePart(){
 		PlayOneTurn(humancards, IA1cards, IA2cards, IA3cards, playerscorecounter, numberofthecurrentturn, playerwhobiginsthepart);
 		numberofthecurrentturn++;
 	}
+	int contractteam;
+	if (iMax == 0 || iMax == 2) {
+		contractteam = 0;
+	}
+	else {
+		contractteam = 1;
+	}
+	int scoreteam[2] = { 0 };
+	int winnerteam = -1;
+	CONTRACT contract = contractplayer[iMax];
+	winnerteam = DetermineTheWinnerTeam(playerscorecounter, contract, contractteam, scoreteam);
+	printf("THE WINNER TEAM OF THIS GAME IS THE TEAM %s", NameTeam[winnerteam]);
+
 }
 
 
 
+// This function has as goal to display the interface at the beginning of the game.
+// The interface will consist of a menu with several possible choices.
+// It takes in entry nothing and returns nothing
+
+void DisplayTheInterfaceOfTheGame() {
+	
+	int answer;
+	printf("				BElOTE COINCHE GAME				");
+	printf("\n");
+	printf("\n");
+	printf("What do you want to do ?");
+	printf("\n");
+	printf("1) Play a new game\n");
+	printf("2) See the best score of the game\n");
+	printf("3) Exit\n");
+	scanf("%d", &answer);
+	while (answer < 1 && answer>3) {
+		printf("Error, try again.\n");
+		scanf("%d", &answer);
+	}
+	switch (answer) {
+	case 1:
+		PlayOnePart();
+		break;
+	case 2:
+		FILE * file = NULL;
+		file = fopen("test.txt", "r");
+
+		if (file != NULL)
+		{
+			// On peut lire et écrire dans le fichier
+		}
+		else
+		{
+			// On affiche un message d'erreur si on veut
+			printf("Impossible d'ouvrir le fichier test.txt");
+		}
+		break;
+	case 3:
+		exit(0);
+		break;
+
+	}
+
+}
+
 
 int main(){
-	figergrainealeatoire();
+	//figergrainealeatoire();
 #if defined(_WIN32) || defined(__MSDOS__)
 	SetConsoleOutputCP(65001);
 #endif
-	PlayOnePart();
+	DisplayTheInterfaceOfTheGame();
 }
