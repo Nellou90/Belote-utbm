@@ -9,7 +9,7 @@
 #define HEART   "\xE2\x99\xA5"
 #define DIAMOND "\xE2\x99\xA6"
 #define SUN     "\xE2\x98\x80"
-#define CLOUD   "\xE2\x98\x81"
+#define MOON    "\xE2\x98\xBE"
 #else
 #define SPADE   "Spade" //\xE2\x99\xA0"
 #define CLUB    "Club"  //\xE2\x99\xA3"
@@ -30,9 +30,9 @@ const int numberofcolor = 4;
 
 // This is the constant value of cards
 const char* TabCardName[] = { "7", "8", "9", "10", "J", "Q", "K", "A" };
-const char* TabTeamNameAscii[] = { SUN, CLOUD };
+const char* TabTeamNameAscii[] = { SUN, MOON };
 const int TabValues[] = { 0, 1, 2, 6, 3, 4, 5, 7 };
-const char* NameTeam[] = { "Sun", "Cloud" };
+const char* NameTeam[] = { "Sun", "Moon" };
 const int PointNormal[] = { 0,0,0,10,2,3,4,11 };
 const int PointTrump[] = { 0,0,14,10,20,3,4,11 };
 // This is the constant color of cards
@@ -164,7 +164,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Bestcontractofthepart
 // input : the number of the IA
 // output : IA contract
 CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontractofthepart) {
-	CONTRACT IAcontract;
+	CONTRACT IAcontract = { -1,-1 };
 	int hardvalueandcolor[4] = { 0 };
 	for (int j = 0; j < numberofcolor; j++) {
 		for (int i = 0; i < numberofcardperplayer; i++) {
@@ -205,11 +205,11 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontract
 		IAcontract.valueContract = 120;
 		IAcontract.colorContract = iMax;
 		if (IAnumber == 2) {
-			printf("IA %s %s announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[0], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+			printf("IA %s %s  announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[0], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 			printf("\n");
 		}
 		else {
-			printf("IA %s %s announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[1], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+			printf("IA %s %s  announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[1], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 			printf("\n");
 		}
 	}
@@ -217,11 +217,11 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontract
 		IAcontract.valueContract = 80;
 		IAcontract.colorContract = iMax;
 		if (IAnumber == 2) {
-			printf("IA %s %s announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[0], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+			printf("IA %s %s  announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[0], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 			printf("\n");
 		}
 		else {
-			printf("IA %s %s announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[1], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
+			printf("IA %s %s  announces the CONTRACT :  %d points %s\n", TabName[IAnumber], TabTeamNameAscii[1], IAcontract.valueContract, TabColor[IAcontract.colorContract]);
 			printf("\n");
 		}
 	}
@@ -229,11 +229,11 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontract
 		IAcontract.valueContract = 0;
 		IAcontract.colorContract = -1;
 		if (IAnumber == 2) {
-			printf("IA %s %s announces that it PASS \n", TabName[IAnumber], TabTeamNameAscii[0]);
+			printf("IA %s %s  announces that it PASS \n", TabName[IAnumber], TabTeamNameAscii[0]);
 			printf("\n");
 		}
 		else {
-			printf("IA %s %s announces that it PASS \n", TabName[IAnumber], TabTeamNameAscii[1]);
+			printf("IA %s %s  announces that it PASS \n", TabName[IAnumber], TabTeamNameAscii[1]);
 			printf("\n");
 		}
 	}
@@ -433,11 +433,11 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofpla
 	if (Firstplayer == NumberofIA) {
 		result = IAcardgame[iMax];
 		if (NumberofIA == 2) {
-			printf("The IA %s %s playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
 			printf("\n");
 		}
 		else {
-			printf("The IA %s %s playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
 			printf("\n");
 		}
 
@@ -512,11 +512,11 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofpla
 			}
 		}
 		if (NumberofIA == 2){
-			printf("The IA %s %s playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[IAcardgame[iResult].index], TabColor[IAcardgame[iResult].color]);
 			printf("\n");
 		}
-		else {
-			printf("The IA %s %s playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+		else if(NumberofIA == 1 || NumberofIA == 3){
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[IAcardgame[iResult].index], TabColor[IAcardgame[iResult].color]);
 			printf("\n");
 		}
 
@@ -729,12 +729,15 @@ void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofpl
 
 }
 
-// This function has as goal to determine the point of a card
+// This function has as goal to determine the points of a card
 int GetPointOfACard(CARD Card) {
 	if (Card.trump == 1) {
 		return PointTrump[Card.index];
 	}
-	return PointNormal[Card.index];
+	else if(Card.trump == 0){
+		return PointNormal[Card.index];
+	}
+	return -1;
 }
 
 // This function has as goal to determine the winner team in relation to score counter of players.
@@ -780,7 +783,7 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[i]);
 		if ( (i==0)
 			|| ((askedColor == Referencingarrayofplayedcards[i].color) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))
-			|| ((askedColor == Referencingarrayofplayedcards[i].trump==1) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))){
+			|| (( Referencingarrayofplayedcards[firstPlayer].trump == 1) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))){
 			max=Referencingarrayofplayedcards[i];
 			winningplayernumber = i;
 		}
@@ -901,10 +904,10 @@ void PlayOnePart(){
 	printf("------------------------------");
 	printf("\n");
 	printf("\n");
-	printf("Sun : %s  +  %s", TabName[humanplayernumber], TabName[IA2playernumber]);
+	printf("Sun %s  : %s  +  %s", TabTeamNameAscii[0], TabName[humanplayernumber], TabName[IA2playernumber]);
 	printf("\n");
 	printf("\n");
-	printf("Cloud : %s  +  %s\n", TabName[IA1playernumber], TabName[IA3playernumber]);
+	printf("Moon %s : %s  +  %s\n", TabTeamNameAscii[1], TabName[IA1playernumber], TabName[IA3playernumber]);
 	printf("\n");
 	printf("\n");
 	CONTRACT* contractplayer;
@@ -953,7 +956,7 @@ void PlayOnePart(){
 void DisplayTheInterfaceOfTheGame() {
 	
 	int answer;
-	printf("				BElOTE COINCHE GAME				");
+	printf("				BElOTE COINCHE GAME			");
 	printf("\n");
 	printf("\n");
 	printf("What do you want to do ?");
@@ -971,7 +974,7 @@ void DisplayTheInterfaceOfTheGame() {
 		PlayOnePart();
 		break;
 	case 2:
-		FILE * file = NULL;
+		FILE* file = NULL;
 		file = fopen("test.txt", "r");
 
 		if (file != NULL)
@@ -993,7 +996,7 @@ void DisplayTheInterfaceOfTheGame() {
 }
 
 int main(){
-	figergrainealeatoire();
+	//figergrainealeatoire();
 #if defined(_WIN32) || defined(__MSDOS__)
 	SetConsoleOutputCP(65001);
 #endif
