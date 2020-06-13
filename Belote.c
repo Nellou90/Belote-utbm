@@ -772,20 +772,25 @@ int DetermineTheWinnerTeam(int* Playerscorecounter, CONTRACT Contract, int Contr
 // input : number of played cards during the turn
 // input : a player score counter
 // output : a boolean which corresponds to the existence of a winner or not
-int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* Playerscorecounter, int firstPlayer){
+int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* Playerscorecounter, int FirstPlayer, int Numberofcurrentturn){
 	int i;
 	CARD max = { -1,-1,-1 };
-	int askedColor = Referencingarrayofplayedcards[firstPlayer].color;
+	int askedColor = Referencingarrayofplayedcards[FirstPlayer].color;
 	int winningplayernumber = -1;
 	int winnerspoints = 0;
 	for (i = 0; i < numberofplayer; i++){
-		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[i]);
-		if ( (i==0)
-			|| ((askedColor == Referencingarrayofplayedcards[i].color) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))
-			|| (( Referencingarrayofplayedcards[firstPlayer].trump == 1) && (GetValueOfACard(Referencingarrayofplayedcards[i]) > GetValueOfACard(max)))){
-			max=Referencingarrayofplayedcards[i];
-			winningplayernumber = i;
+		int numJoueurOrdonne = (i + FirstPlayer) % 4;
+		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]);
+		if ( (i ==0)
+			|| ((askedColor == Referencingarrayofplayedcards[numJoueurOrdonne].color) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))
+			|| (( Referencingarrayofplayedcards[FirstPlayer].trump == 1) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))){
+			max=Referencingarrayofplayedcards[numJoueurOrdonne];
+			winningplayernumber = numJoueurOrdonne;
 		}
+	}
+	if (Numberofcurrentturn == 7) {
+		printf("Bonus of 10 for the last turn.\n");
+		winnerspoints += 10;
 	}
 
 	if (winningplayernumber != -1) {
@@ -869,7 +874,7 @@ int PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, in
 		}		
 		printf("\n");
 	}
-	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Playerscorecounter, Firstplayernumber);
+	winneroftheturn = DeterminingAWinnerAmongThePlayers(referencingarrayoftheplayedcards, Playerscorecounter, Firstplayernumber, Numberofthecurrentturn);
 	return winneroftheturn;
 }
 
