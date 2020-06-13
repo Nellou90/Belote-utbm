@@ -23,5 +23,4 @@ CARD* ChangeFromATwoDimensionalArrayToASingleArray(CARD** Cardsperplayer, int Pl
 CARD ResizingAnArrayAfterPlayingACard(CARD* Deckofcardsofoneplayer, CARD Chosencardduringthecurrentturn, int Numberofthecurrentturn);
 void AddPlayedCardToReferencingArray(CARD Playedcard, CARD* Referencingarrayofplayedcardofturn, int Numberoftheplayer);
 int GetPointOfACard(CARD Card);
-void DisplayTheInterfaceOfTheGame();
 #endif

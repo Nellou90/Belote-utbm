@@ -51,8 +51,5 @@ typedef struct _CARD_ {
 	int trump;
 } CARD;
 
-
-
-
 extern char** TabName;
 #endif

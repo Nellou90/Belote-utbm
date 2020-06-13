@@ -17,4 +17,5 @@ int PlayOneRound(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, i
 void PlayOneGame();
 void FreeAllocString(char* Stringofcharactere);
 void FixTheRandomSeed();
+void DisplayTheInterfaceOfTheGame();
 #endif

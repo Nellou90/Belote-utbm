@@ -284,3 +284,54 @@ void PlayOneGame() {
 	WriteTheNameAndPointsOfTheWinnerOnAFile(playername, playerscorecounter[0]);
 }
 
+// This function has as goal to display the interface at the beginning of the game.
+// The interface will consist of a menu with several possible choices.
+// It takes in entry nothing and returns nothing
+
+void DisplayTheInterfaceOfTheGame() {
+
+	int answer;
+	printf(" ___      _     _\n| _ ) ___| |___| |_ ___\n| _ \\/ -_) / _ \\  _/ -_)\n|___/\\___|_\\___/\\__\\___|");
+	printf("\n");
+	printf("\n");
+	printf("What do you want to do ?");
+	printf("\n");
+	printf("1) Play a new game\n");
+	printf("2) See the best score of the game\n");
+	printf("3) Exit\n");
+	scanf("%d", &answer);
+	while (answer < 1 && answer>3) {
+		printf("Error, try again.\n");
+		scanf("%d", &answer);
+	}
+	printf("\n");
+	switch (answer) {
+	case 1:
+		PlayOneGame();
+		break;
+	case 2:
+		FILE * file = NULL;
+		char string[1000] = "";
+		file = fopen("Belote_score.txt", "r");
+
+		if (file != NULL)
+		{
+			while (fgets(string, 1000, file) != NULL)
+			{
+				printf("%s", string);
+			}
+
+			fclose(file);
+		}
+		else
+		{
+			printf("Impossible d'ouvrir le fichier test.txt");
+		}
+		break;
+	case 3:
+		exit(0);
+		break;
+
+	}
+
+}
