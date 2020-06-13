@@ -16,7 +16,6 @@
 #define HEART   "Heart" // \xE2\x99\xA5"
 #define DIAMOND "Diamond" //\xE2\x99\xA6"
 #endif
-
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
 //const  char typejoueur1[] = "humain";
@@ -44,9 +43,9 @@ void FillName(char* Playername){
 	TabName = malloc(sizeof(char*) * 4);
 	TabName[0] = malloc(strlen(Playername) + 1);
 	sprintf(TabName[0], "%s", Playername);
-	TabName[1] = tabNomIA[0];
-	TabName[2] = tabNomIA[1];
-	TabName[3] = tabNomIA[2];
+	TabName[1] = (char *)tabNomIA[0];
+	TabName[2] = (char *)tabNomIA[1];
+	TabName[3] = (char *)tabNomIA[2];
 }
 
 void FreeAllocString(char* Stringofcharactere) {
@@ -121,13 +120,13 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Bestcontractofthepart
 
 	}
 	else if (answer == 1) {
-		printf("			Choose the color of your contract : \n");
+		printf("		Choose the color of your contract : \n");
 		printf("\n");
 		printf("\n");
 		printf("%s : 0			%s : 1			%s : 2			%s : 3	", TabColor[0], TabColor[1], TabColor[2], TabColor[3]);
 		printf("\n");
 		scanf("%d", &(humancontract.colorContract));
-		while (humancontract.colorContract < 0 && humancontract.colorContract >3) {
+		while ((humancontract.colorContract) < 0 || (humancontract.colorContract) > 3) {
 			printf("Error, try again :\n");
 			printf("\n");
 			scanf("%d", &(humancontract.colorContract));
@@ -135,7 +134,7 @@ CONTRACT ContractOfAHuman(CARD* Deckofcardshuman, CONTRACT Bestcontractofthepart
 		printf("Choose your contract between 80 and 160 : \n");
 		printf("\n");
 		scanf("%d", &(humancontract.valueContract));
- 		while (humancontract.valueContract < 80 && humancontract.valueContract > 160 || humancontract.valueContract <= Bestcontractofthepart.valueContract) {
+ 		while (humancontract.valueContract < 80 || humancontract.valueContract > 160 || humancontract.valueContract <= Bestcontractofthepart.valueContract) {
 			printf("Attention your contract must be superior to the contract of the previous player. \n Press 0 to PASS and 1 to CONTINUE\n");
 			printf("\n");
 			scanf("%d", &answer2);
@@ -306,8 +305,8 @@ CONTRACT* DetermineTrumpColorAndManageBids(int Firstplayerwhostart, CARD* Deckof
 
 
 
-void figergrainealeatoire() {
-	srand(time(NULL));
+void FixTheRandomSeed() {
+	srand((unsigned int)time(NULL));
 }
 
 
@@ -433,11 +432,11 @@ CARD PlayIA(CARD* IAcardgame, int Currentturnnumber, CARD* Referencingarrayofpla
 	if (Firstplayer == NumberofIA) {
 		result = IAcardgame[iMax];
 		if (NumberofIA == 2) {
-			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[0], TabCardName[result.index], TabColor[result.color]);
 			printf("\n");
 		}
 		else {
-			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[IAcardgame[iMax].index], TabColor[IAcardgame[iMax].color]);
+			printf("The IA %s %s  playes the CARD :	 | %s%s |\n", TabName[NumberofIA], TabTeamNameAscii[1], TabCardName[result.index], TabColor[result.color]);
 			printf("\n");
 		}
 
@@ -674,7 +673,7 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn, 
 		}
 		printf("\n");
 		scanf("%d", &i);
-		if (Deckofcardofoneplayer[i].color != askedcolor && temp > 0) {
+		while (Deckofcardofoneplayer[i].color != askedcolor && temp > 0) {
 			printf("If you have a card of the color %s, you have to play this card !\n", TabColor[Referencingarrayofplayedcard[Firstplayer].color]);
 			scanf("%d", &i);
 		}
@@ -874,6 +873,29 @@ int PlayOneTurn(CARD* Humandeck, CARD* IA1deck, CARD* IA2deck, CARD* IA3deck, in
 	return winneroftheturn;
 }
 
+// This function has as goal to write on a file.txt the name of the last winner and his score points.
+// It takes in entry the name of the player and his point.
+// and it returns nothing.
+void WriteTheNameAndPointsOfTheWinnerOnAFile(char* Nameofwinnerplayer, int Pointsofplayer) {
+	FILE* file = NULL;
+	file = fopen("Belote_score.txt", "w");
+
+	if (file != NULL)
+	{
+		fprintf(file, "||  Name : %s  ||  Score : %d  ||\n", Nameofwinnerplayer, Pointsofplayer);
+		fprintf(file, "---------------------------------\n");
+		fclose(file);
+	}
+	else
+	{
+		printf("Error file Belote_score.txt not founds");
+	}
+}
+
+
+
+
+
 // The purpose of this function is to play a party, i.e. to play several turns (as many as there are cards in the player's hands).
 // There is no input parameters but the function dynamically allocates a  piece of memory to deck of cards of the human and IAs
 // The function displays the winner of this party.
@@ -942,9 +964,14 @@ void PlayOnePart(){
 	int winnerteam = -1;
 	CONTRACT contract = contractplayer[iMax];
 	winnerteam = DetermineTheWinnerTeam(playerscorecounter, contract, contractteam, scoreteam);
+	printf("Score team Sun %s  :  %d\n", TabTeamNameAscii[0], scoreteam[0]);
+	printf("\n");
+	printf("Score team Moon %s  :  %d\n", TabTeamNameAscii[1], scoreteam[1]);
+	printf("\n");
 	printf("THE WINNER TEAM OF THIS GAME IS THE TEAM %s", NameTeam[winnerteam]);
 	printf("\n");
 	printf("\n");
+	WriteTheNameAndPointsOfTheWinnerOnAFile(playername, playerscorecounter[0]);
 }
 
 
@@ -956,7 +983,7 @@ void PlayOnePart(){
 void DisplayTheInterfaceOfTheGame() {
 	
 	int answer;
-	printf("				BElOTE COINCHE GAME			");
+	printf(" ___      _     _\n| _ ) ___| |___| |_ ___\n| _ \\/ -_) / _ \\  _/ -_)\n|___/\\___|_\\___/\\__\\___|");
 	printf("\n");
 	printf("\n");
 	printf("What do you want to do ?");
@@ -969,21 +996,27 @@ void DisplayTheInterfaceOfTheGame() {
 		printf("Error, try again.\n");
 		scanf("%d", &answer);
 	}
+	printf("\n");
 	switch (answer) {
 	case 1:
 		PlayOnePart();
 		break;
 	case 2:
 		FILE* file = NULL;
-		file = fopen("test.txt", "r");
+		char string[1000] = "";
+		file = fopen("Belote_score.txt", "r");
 
 		if (file != NULL)
 		{
-			// On peut lire et écrire dans le fichier
+			while (fgets(string, 1000, file) != NULL) 
+			{
+				printf("%s", string);
+			}
+
+			fclose(file);
 		}
 		else
 		{
-			// On affiche un message d'erreur si on veut
 			printf("Impossible d'ouvrir le fichier test.txt");
 		}
 		break;
@@ -996,9 +1029,19 @@ void DisplayTheInterfaceOfTheGame() {
 }
 
 int main(){
-	//figergrainealeatoire();
+	FixTheRandomSeed();
 #if defined(_WIN32) || defined(__MSDOS__)
 	SetConsoleOutputCP(65001);
 #endif
 	DisplayTheInterfaceOfTheGame();
 }
+
+
+
+
+
+
+
+
+
+
