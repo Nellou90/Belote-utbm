@@ -148,6 +148,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Belote.c" />
+    <ClCompile Include="CardDeckOperations..c" />
+    <ClCompile Include="Defs.c" />
+    <ClCompile Include="GameOperations.c" />
+    <ClCompile Include="HumanPlayer.c" />
+    <ClCompile Include="IAPlayer.c" />
+    <ClCompile Include="SerializeScores.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CardDeckOperations.h" />
+    <ClInclude Include="Defs.h" />
+    <ClInclude Include="GameOperations.h" />
+    <ClInclude Include="HumanPlayer.h" />
+    <ClInclude Include="IAPlayer.h" />
+    <ClInclude Include="SerializeScores.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
