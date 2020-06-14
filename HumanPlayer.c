@@ -112,7 +112,7 @@ CARD ChooseACardToPlay(CARD* Deckofcardofoneplayer, int Numberofthecurrentturn, 
 		printf("\n");
 		scanf("%d", &i);
 		while (Deckofcardofoneplayer[i].color != askedcolor && temp > 0) {
-			printf("If you have a card of the color %s, you have to play this card !\n", TabColor[Referencingarrayofplayedcard[Firstplayer].color]);
+			printf("If you have a card of the color %s  , you have to play this card !\n", TabColor[Referencingarrayofplayedcard[Firstplayer].color]);
 			scanf("%d", &i);
 		}
 		while (i < 0 || i >= numberofcardperplayer - Numberofthecurrentturn) {

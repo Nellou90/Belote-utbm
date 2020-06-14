@@ -101,8 +101,7 @@ int DetermineTheWinnerTeam(int* Playerscorecounter, CONTRACT Contract, int Contr
 		if (scoreteam[0] > 82 && scoreteam[0] > Contract.valueContract) {
 			winnerteam = 0;
 		}
-		else {
-			scoreteam[1] = scoreteam[1] + Contract.valueContract;
+		else { 
 			winnerteam = 1;
 		}
 	}
@@ -111,7 +110,6 @@ int DetermineTheWinnerTeam(int* Playerscorecounter, CONTRACT Contract, int Contr
 			winnerteam = 1;
 		}
 		else {
-			scoreteam[0] = scoreteam[0] + Contract.valueContract;
 			winnerteam = 0;
 		}
 	}
@@ -149,12 +147,12 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 	if (winningplayernumber != -1) {
 		Playerscorecounter[winningplayernumber] = Playerscorecounter[winningplayernumber] + winnerspoints;
 		if (winningplayernumber == 0 || winningplayernumber == 2) {
-			printf("Player %s %s, wins. His score is increased by %d, and reaches %d.\n", TabName[winningplayernumber], TabTeamNameAscii[0], winnerspoints, Playerscorecounter[winningplayernumber]);
+			printf("Player %s %s  , wins. His score is increased by %d, and reaches %d.\n", TabName[winningplayernumber], TabTeamNameAscii[0], winnerspoints, Playerscorecounter[winningplayernumber]);
 			printf("\n");
 			printf("\n");
 		}
 		else {
-			printf("Player %s %s, wins. His score is increased by %d, and reaches %d.\n", TabName[winningplayernumber], TabTeamNameAscii[1], winnerspoints, Playerscorecounter[winningplayernumber]);
+			printf("Player %s %s  , wins. His score is increased by %d, and reaches %d.\n", TabName[winningplayernumber], TabTeamNameAscii[1], winnerspoints, Playerscorecounter[winningplayernumber]);
 			printf("\n");
 			printf("\n");
 		}
