@@ -146,10 +146,8 @@ CARD** DistributeADeckOfCardsPerPlayer(CARD* Shuffleddeckofcards, CARD** Cardspe
 	for (i = 0; i < numberofplayer; i++) {
 		for (j = 0; j < numberofcardperplayer; j++) {
 			Cardsperplayer[i][j] = Shuffleddeckofcards[m];
-			printf("joueur %d : %s de %s\n", i, TabCardName[Shuffleddeckofcards[m].index], TabColor[Shuffleddeckofcards[m].color]);
 			m++;
 		}
-		printf("\n");
 	}
 	return Cardsperplayer;
 }
