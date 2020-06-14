@@ -19,6 +19,7 @@
 #define DIAMOND "Diamond" //\xE2\x99\xA6"
 #endif
 #define _CRT_SECURE_NO_WARNINGS
+
 #pragma warning(disable : 4996)
 
 extern const int numberofplayer;
