@@ -214,6 +214,8 @@ void PlayOneGame() {
 	printf("What is your name ?\n");
 	printf("\n");
 	scanf("%s", &playername);
+	printf("\n"); 
+	printf("\n");
 	FillName(playername);
 	int playerscorecounter[4] = { 0 };
 	CARD** deckofcardsperplayer;
