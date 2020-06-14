@@ -305,13 +305,15 @@ void DisplayTheInterfaceOfTheGame() {
 		scanf("%d", &answer);
 	}
 	printf("\n");
+
+    FILE * file = NULL;
+    char string[1000] = "";
+
 	switch (answer) {
 	case 1:
 		PlayOneGame();
 		break;
 	case 2:
-		FILE * file = NULL;
-		char string[1000] = "";
 		file = fopen("Belote_score.txt", "r");
 
 		if (file != NULL)
