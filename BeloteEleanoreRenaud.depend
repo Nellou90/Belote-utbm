@@ -1,0 +1,71 @@
+# depslib dependency file v1.0
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\belote.c
+	"Defs.h"
+	"GameOperations.h"
+
+1592134063 c:\users\pchc2\projetutbm\belote-utbm\defs.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<string.h.>
+	<windows.h>
+
+1592133290 c:\users\pchc2\projetutbm\belote-utbm\gameoperations.h
+	"Defs.h"
+	"CardDeckOperations.h"
+	"HumanPlayer.h"
+	"IAPlayer.h"
+	"SerializeScores.h"
+	"GameOperations.h"
+
+1592133290 c:\users\pchc2\projetutbm\belote-utbm\carddeckoperations.h
+	"Defs.h"
+	"CardDeckOperations.h"
+	"HumanPlayer.h"
+	"IAPlayer.h"
+	"SerializeScores.h"
+	"GameOperations.h"
+
+1592133290 c:\users\pchc2\projetutbm\belote-utbm\humanplayer.h
+	"Defs.h"
+	"CardDeckOperations.h"
+	"HumanPlayer.h"
+	"IAPlayer.h"
+	"SerializeScores.h"
+	"GameOperations.h"
+
+1592133290 c:\users\pchc2\projetutbm\belote-utbm\iaplayer.h
+	"Defs.h"
+	"CardDeckOperations.h"
+	"HumanPlayer.h"
+	"IAPlayer.h"
+	"SerializeScores.h"
+	"GameOperations.h"
+
+1592133290 c:\users\pchc2\projetutbm\belote-utbm\serializescores.h
+	"Defs.h"
+	"CardDeckOperations.h"
+	"HumanPlayer.h"
+	"IAPlayer.h"
+	"SerializeScores.h"
+	"GameOperations.h"
+
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\carddeckoperations..c
+	"Defs.h"
+	"CardDeckOperations.h"
+
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\defs.c
+	"Defs.h"
+
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\humanplayer.c
+	"Defs.h"
+	"HumanPlayer.h"
+
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\iaplayer.c
+	"Defs.h"
+	"IAPlayer.h"
+
+1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\serializescores.c
+	"Defs.h"
+	"SerializeScores.h"
+
