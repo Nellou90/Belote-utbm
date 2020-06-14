@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h.>
+
 #if defined(_WIN32) || defined(__MSDOS__)
 #include<windows.h>
 #define SPADE   "\xE2\x99\xA0"
@@ -20,14 +21,6 @@
 #endif
 #define _CRT_SECURE_NO_WARNINGS
 
-#pragma warning(disable : 4996)
-
-extern const int numberofplayer;
-extern const int numberofcardsinthedeck;
-extern const int numberofcardperplayer;
-extern const int sizeofreferencingarray;
-extern const int numberofcolor;
-
 // This is the constant value of cards
 extern const char* TabCardName[];
 extern const char* TabTeamNameAscii[];
@@ -38,6 +31,12 @@ extern const int PointTrump[];
 // This is the constant color of cards
 extern const char* TabColor[];
 extern const char* tabNomIA[];
+
+extern const int numberofplayer;
+extern const int numberofcardsinthedeck;
+extern const int numberofcardperplayer;
+extern const int sizeofreferencingarray;
+extern const int numberofcolor;
 
 // The struct CONTRACT integrates in it-self the value of the contract and the color of the contract
 typedef struct _CONTRACT_ {
@@ -53,4 +52,10 @@ typedef struct _CARD_ {
 } CARD;
 
 extern char** TabName;
+
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4996)
+#endif
+
 #endif

@@ -3,7 +3,7 @@
 	"Defs.h"
 	"GameOperations.h"
 
-1592134063 c:\users\pchc2\projetutbm\belote-utbm\defs.h
+1592135298 c:\users\pchc2\projetutbm\belote-utbm\defs.h
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -61,11 +61,15 @@
 	"Defs.h"
 	"HumanPlayer.h"
 
-1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\iaplayer.c
+1592135599 source:c:\users\pchc2\projetutbm\belote-utbm\iaplayer.c
 	"Defs.h"
 	"IAPlayer.h"
 
 1592133290 source:c:\users\pchc2\projetutbm\belote-utbm\serializescores.c
 	"Defs.h"
 	"SerializeScores.h"
+
+1592135104 source:c:\users\pchc2\projetutbm\belote-utbm\gameoperations.c
+	"Defs.h"
+	"GameOperations.h"
 

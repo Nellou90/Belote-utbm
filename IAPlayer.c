@@ -3,7 +3,7 @@
 
 // This fonction has as goal to ask to IA player how many point it projects to do during the part of the games.
 // The function has in entry the deck of cards of the IA, the Asset, the number of the IA and return the contract of the IA.
-// input : deck of cards of the IA 
+// input : deck of cards of the IA
 // input : Asset
 // input : the number of the IA
 // output : IA contract
@@ -69,7 +69,7 @@ CONTRACT ContractOfAnIA(CARD* DeckofcardsIA, int IAnumber, CONTRACT Bestcontract
 			printf("\n");
 		}
 	}
-	else if (hardvalueandcolor[iMax] < 13 || Bestcontractofthegame.valueContract >= 120 || hardvalueandcolor[iMax] < 20 && Bestcontractofthegame.valueContract >= 80) {
+	else if ((hardvalueandcolor[iMax] < 13) || (Bestcontractofthegame.valueContract >= 120) || ((hardvalueandcolor[iMax] < 20) && (Bestcontractofthegame.valueContract >= 80))) {
 		IAcontract.valueContract = 0;
 		IAcontract.colorContract = -1;
 		if (IAnumber == 2) {
