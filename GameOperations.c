@@ -133,8 +133,8 @@ int DeterminingAWinnerAmongThePlayers(CARD* Referencingarrayofplayedcards, int* 
 		int numJoueurOrdonne = (i + FirstPlayer) % 4;
 		winnerspoints += GetPointOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]);
 		if ((i == 0)
-			|| ((askedColor == Referencingarrayofplayedcards[numJoueurOrdonne].color) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))
-			|| ((Referencingarrayofplayedcards[FirstPlayer].trump == 1) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))) {
+			|| ((Referencingarrayofplayedcards[numJoueurOrdonne].color == askedColor) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))
+			|| ((Referencingarrayofplayedcards[numJoueurOrdonne].trump == 1) && (GetValueOfACard(Referencingarrayofplayedcards[numJoueurOrdonne]) > GetValueOfACard(max)))) {
 			max = Referencingarrayofplayedcards[numJoueurOrdonne];
 			winningplayernumber = numJoueurOrdonne;
 		}
